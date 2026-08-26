@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Create Account — CineScope{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-logo">CineScope</div>
+        <p class="auth-subtitle">Track films you've watched. Save those you want to see.</p>
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            <div class="mb-3">
+                <label class="form-label-dark" for="username">Username</label>
+                <input type="text" class="form-control form-control-dark" id="username" name="username" required autofocus>
+            </div>
+            <div class="mb-3">
+                <label class="form-label-dark" for="email">Email address</label>
+                <input type="email" class="form-control form-control-dark" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label-dark" for="password">Password</label>
+                <input type="password" class="form-control form-control-dark" id="password" name="password" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label-dark" for="confirm_password">Confirm Password</label>
+                <input type="password" class="form-control form-control-dark" id="confirm_password" name="confirm_password" required>
+            </div>
+            <button type="submit" class="btn btn-cinescope w-100 mb-3">Create Account</button>
+        </form>
+
+        <p class="text-center" style="color: var(--text-muted); font-size: 0.8rem;">
+            Already a member? <a href="{{ url_for('auth.login') }}">Sign in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

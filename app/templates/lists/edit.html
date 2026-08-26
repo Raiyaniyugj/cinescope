@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit List' if custom_list else 'New List' }} — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex align-items-center justify-content-between mb-4 pb-3" style="border-bottom: 1px solid var(--border);">
+                <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; margin: 0;">{{ 'Edit List' if custom_list else 'New List' }}</h3>
+                <button type="submit" form="listForm" class="btn btn-cinescope" style="font-size: 0.72rem;">SAVE</button>
+            </div>
+
+            <form id="listForm" action="{{ url_for('lists.edit_list', list_id=custom_list.id) if custom_list else url_for('lists.create_list') }}" method="POST">
+                <div class="row">
+                    <div class="col-md-8 mb-4">
+                        <div class="mb-3">
+                            <label class="form-label" style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Name of List</label>
+                            <input type="text" name="name" class="form-control" value="{{ custom_list.name if custom_list else '' }}" required placeholder="e.g. My Favorite Horror Films" style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border); font-weight: 600;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Description</label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="Write a description..." style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border);">{{ custom_list.description if custom_list else '' }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <label class="form-label" style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Add Films</label>
+                        <input type="text" id="movieSearchInput" class="form-control mb-2" placeholder="Search for a film..." style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border);">
+                        <div id="searchResults" style="max-height: 250px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <h6 style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.75rem; font-weight: 600;">Films in List <span id="filmCount">({{ custom_list.movies|length if custom_list else 0 }})</span></h6>
+                    
+                    <div id="movieGrid" class="row g-2">
+                        {% if custom_list %}
+                            {% for movie in custom_list.movies %}
+                            <div class="col-2 position-relative movie-item" data-id="{{ movie.tmdb_id }}">
+                                <div style="aspect-ratio: 2/3; border-radius: 3px; overflow: hidden; border: 1px solid var(--border-subtle);">
+                                    <img src="{{ movie.poster_path|poster_url('w342') }}" class="w-100 h-100" style="object-fit: cover;">
+                                </div>
+                                <button type="button" class="btn position-absolute remove-movie-btn" data-id="{{ movie.tmdb_id }}" style="top: 2px; right: 10px; background: rgba(0,0,0,0.7); color: var(--red); font-size: 0.65rem; padding: 0 4px; border-radius: 2px;"><i class="bi bi-x"></i></button>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div id="hiddenInputs"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let searchTimeout = null;
+    const isEditMode = {{ 'true' if custom_list else 'false' }};
+    const listId = {{ custom_list.id if custom_list else 'null' }};
+    
+    let currentMovies = new Set();
+    {% if custom_list %}
+        {% for movie in custom_list.movies %}
+            currentMovies.add({{ movie.tmdb_id }});
+        {% endfor %}
+    {% endif %}
+
+    document.getElementById('movieSearchInput').addEventListener('input', function(e) {
+        clearTimeout(searchTimeout);
+        const query = e.target.value;
+        const resultsContainer = document.getElementById('searchResults');
+        
+        if (query.length < 3) { resultsContainer.innerHTML = ''; return; }
+
+        searchTimeout = setTimeout(async () => {
+            try {
+                const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                
+                resultsContainer.innerHTML = '';
+                data.results.slice(0, 5).forEach(movie => {
+                    const year = movie.release_date ? movie.release_date.substring(0, 4) : '';
+                    const poster = movie.poster_path ? `https://image.tmdb.org/t/p/w92${movie.poster_path}` : '';
+                    const posterFull = movie.poster_path ? `https://image.tmdb.org/t/p/w342${movie.poster_path}` : '';
+                    
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.style.cssText = 'display:flex;align-items:center;gap:10px;width:100%;padding:6px;border:none;border-bottom:1px solid var(--border-subtle);background:transparent;color:var(--text-primary);cursor:pointer;text-align:left;';
+                    btn.innerHTML = `<img src="${poster}" style="width:25px;height:38px;object-fit:cover;border-radius:2px;"> <span style="font-weight:600;font-size:0.82rem;">${movie.title} <span style="color:var(--text-muted);font-weight:400;">${year}</span></span>`;
+                    btn.onmouseenter = () => btn.style.background = 'var(--bg-card-hover)';
+                    btn.onmouseleave = () => btn.style.background = 'transparent';
+                    btn.onclick = () => addMovieToList(movie.id, posterFull);
+                    resultsContainer.appendChild(btn);
+                });
+            } catch (err) { console.error(err); }
+        }, 300);
+    });
+
+    async function addMovieToList(tmdb_id, poster) {
+        if (currentMovies.has(tmdb_id)) return;
+
+        if (isEditMode) {
+            const formData = new FormData();
+            formData.append('tmdb_id', tmdb_id);
+            try {
+                const res = await fetch(`/lists/${listId}/add`, { method: 'POST', body: formData });
+                const data = await res.json();
+                if (!data.success) return;
+            } catch(e) { return; }
+        } else {
+            const input = document.createElement('input');
+            input.type = 'hidden'; input.name = 'movies[]'; input.value = tmdb_id;
+            input.id = `hidden-movie-${tmdb_id}`;
+            document.getElementById('hiddenInputs').appendChild(input);
+        }
+
+        currentMovies.add(tmdb_id);
+        const col = document.createElement('div');
+        col.className = 'col-2 position-relative movie-item';
+        col.id = `movie-ui-${tmdb_id}`;
+        col.innerHTML = `
+            <div style="aspect-ratio:2/3;border-radius:3px;overflow:hidden;border:1px solid var(--border-subtle);">
+                <img src="${poster}" class="w-100 h-100" style="object-fit:cover;">
+            </div>
+            <button type="button" class="btn position-absolute" onclick="removeMovie(${tmdb_id})" style="top:2px;right:10px;background:rgba(0,0,0,0.7);color:var(--red);font-size:0.65rem;padding:0 4px;border-radius:2px;"><i class="bi bi-x"></i></button>
+        `;
+        document.getElementById('movieGrid').appendChild(col);
+        updateCount();
+        document.getElementById('searchResults').innerHTML = '';
+        document.getElementById('movieSearchInput').value = '';
+    }
+
+    async function removeMovie(tmdb_id) {
+        if (isEditMode) {
+            const formData = new FormData();
+            formData.append('tmdb_id', tmdb_id);
+            try { await fetch(`/lists/${listId}/remove`, { method: 'POST', body: formData }); } catch(e) { return; }
+        } else {
+            const input = document.getElementById(`hidden-movie-${tmdb_id}`);
+            if (input) input.remove();
+        }
+        currentMovies.delete(tmdb_id);
+        const col = document.querySelector(`.movie-item[data-id="${tmdb_id}"]`) || document.getElementById(`movie-ui-${tmdb_id}`);
+        if (col) col.remove();
+        updateCount();
+    }
+
+    document.querySelectorAll('.remove-movie-btn').forEach(btn => {
+        btn.onclick = () => removeMovie(parseInt(btn.dataset.id));
+    });
+
+    function updateCount() {
+        document.getElementById('filmCount').innerText = `(${currentMovies.size})`;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% if total_pages > 1 %}
+<nav aria-label="Page navigation" class="mt-4 mb-5">
+    <ul class="pagination justify-content-center" style="font-size: 0.85rem; font-weight: 500;">
+        {% if current_page > 1 %}
+        <li class="page-item">
+            <a class="page-link" href="{{ base_url }}/page/{{ current_page - 1 }}" style="background-color: transparent; border-color: transparent; color: #8AA8B9; text-transform: uppercase; font-size: 0.75rem; font-weight: bold; padding: 0.5rem 1rem;">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% set start = current_page - 2 %}
+        {% set end = current_page + 2 %}
+        
+        {% if start < 1 %}
+            {% set end = end + (1 - start) %}
+            {% set start = 1 %}
+        {% endif %}
+        
+        {% if end > total_pages %}
+            {% set start = start - (end - total_pages) %}
+            {% set end = total_pages %}
+            {% if start < 1 %}
+                {% set start = 1 %}
+            {% endif %}
+        {% endif %}
+        
+        {% for p in range(start, end + 1) %}
+        <li class="page-item {% if p == current_page %}active{% endif %}">
+            <a class="page-link" href="{{ base_url }}{% if p > 1 %}/page/{{ p }}{% endif %}" style="background-color: {% if p == current_page %}#445566{% else %}transparent{% endif %}; border-color: {% if p == current_page %}#2C3440{% else %}transparent{% endif %}; color: {% if p == current_page %}#fff{% else %}#8AA8B9{% endif %}; border-radius: 3px; margin: 0 0.15rem; padding: 0.35rem 0.65rem;">{{ p }}</a>
+        </li>
+        {% endfor %}
+        
+        {% if current_page < total_pages %}
+        <li class="page-item">
+            <a class="page-link" href="{{ base_url }}/page/{{ current_page + 1 }}" style="background-color: transparent; border-color: transparent; color: #8AA8B9; text-transform: uppercase; font-size: 0.75rem; font-weight: bold; padding: 0.5rem 1rem;">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}

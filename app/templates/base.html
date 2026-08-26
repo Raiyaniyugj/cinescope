@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CineScope — Track films you've watched. Save those you want to see. Tell your friends what's good.">
+    <title>{% block title %}CineScope{% endblock %}</title>
+
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-cinescope">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <span class="brand-dots">
+                    <span class="dot dot-orange"></span>
+                    <span class="dot dot-green"></span>
+                    <span class="dot dot-blue"></span>
+                </span>
+                CineScope
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mx-auto">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" style="border: none !important;">
+                            <div class="profile-avatar-large" style="width: 22px; height: 22px; font-size: 0.6rem; {% if current_user.avatar_url %}background-image: url('{{ current_user.avatar_url }}'); background-size: cover; color: transparent;{% endif %}">{{ current_user.username[0]|upper }}</div>
+                            <span style="text-transform: uppercase; font-weight: 700;">{{ current_user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" style="background-color: #445566; border: 1px solid #2C3440;">
+                            <li><a class="dropdown-item" href="{{ url_for('main.index') }}">Home</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.profile', username=current_user.username) }}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.films') }}">Films</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('watchlist.diary') }}">Diary</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('watchlist.index') }}">Watchlist</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('lists.index') }}">Lists</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('analytics.cinephile') }}">Stats</a></li>
+                            <li><hr class="dropdown-divider" style="border-color: #2C3440;"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.settings') }}">Settings</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Sign Out</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'main.activity' %}active{% endif %}" href="{{ url_for('main.activity') if current_user.is_authenticated else url_for('main.index') }}"><i class="bi bi-activity"></i></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'main.films' or (request.endpoint == 'main.index' and not current_user.is_authenticated) %}active{% endif %}" href="{{ url_for('main.films') }}">Films</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'lists' in request.endpoint|default('') %}active{% endif %}" href="{{ url_for('lists.index') if current_user.is_authenticated else '#' }}">Lists</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'members.index' %}active{% endif %}" href="{{ url_for('members.index') }}">Members</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'watchlist.diary' %}active{% endif %}" href="{{ url_for('watchlist.diary') if current_user.is_authenticated else '#' }}">Journal</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2">
+                    <form class="nav-search-form" action="{{ url_for('main.search') }}" method="GET">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" class="form-control" name="q" placeholder="Search..." aria-label="Search">
+                    </form>
+
+                    {% if current_user.is_authenticated %}
+                    <button class="btn btn-log-film" data-bs-toggle="modal" data-bs-target="#globalLogModal" style="background-color: #00E054; color: #fff; border: none; padding: 0.3rem 0.8rem; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.5px;">+ LOG</button>
+                    {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="nav-link" style="font-size: 0.78rem; color: var(--text-muted) !important;">SIGN IN</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-cinescope" style="font-size: 0.72rem; padding: 0.25rem 0.7rem;">CREATE ACCOUNT</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mt-2">
+        {% for category, message in messages %}
+        <div class="alert alert-cinescope alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+    <footer class="footer-cinescope">
+        <div class="container">
+            <p class="footer-text">
+                <span class="highlight">CineScope</span> · Track films you've watched. Save those you want to see. ·
+                Film data from <a href="https://www.themoviedb.org/" target="_blank" class="highlight">TMDB</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/filters.js') }}"></script>
+
+    <!-- Global Log Modal -->
+    {% if current_user.is_authenticated %}
+    <div class="modal fade" id="globalLogModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="background: #2C3440; color: #8AA8B9; border: none; border-radius: 4px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                <div class="modal-header" style="background: #445566; border-bottom: 1px solid #242c36; padding: 0.5rem 1rem;">
+                    <div class="d-flex align-items-center gap-3">
+                        <button type="button" class="btn btn-sm" style="background: rgba(255,255,255,0.1); color: #fff; font-size: 0.75rem; border: none; font-weight: 700;" onclick="resetLogSearch()">BACK</button>
+                        <h6 class="modal-title fw-bold text-white mb-0" style="font-size: 1.1rem; letter-spacing: 0.5px;">I watched...</h6>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="opacity: 0.5;"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="logSearchSection" class="p-4">
+                        <div class="mb-3">
+                            <input type="text" id="logSearchInput" class="form-control" style="background: #14181C; color: #fff; border: 1px solid #14181C; font-size: 1.2rem; padding: 0.75rem;" placeholder="Name of Film...">
+                        </div>
+                        <div id="logSearchResults" style="max-height: 400px; overflow-y: auto;"></div>
+                    </div>
+                    
+                    <div id="logFormSection" style="display: none; padding: 2rem;">
+                        <form id="logForm" action="{{ url_for('watchlist.log_modal_submit') }}" method="POST">
+                            <input type="hidden" name="tmdb_id" id="logTmdbId">
+                            <input type="hidden" name="title" id="logFormTitle">
+                            
+                            <div class="row">
+                                <div class="col-auto">
+                                    <img id="logMoviePoster" src="" style="width: 150px; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                                </div>
+                                <div class="col ps-4">
+                                    <div class="d-flex align-items-baseline mb-3 gap-2">
+                                        <h3 id="logMovieTitle" class="mb-0 fw-bold text-white" style="font-family: serif; font-size: 1.7rem;"></h3>
+                                        <span id="logMovieYear" style="color: #678; font-size: 1.1rem;"></span>
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center gap-4 mb-4" style="font-size: 0.85rem; color: #fff;">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <input type="checkbox" id="watchedDateCheck" class="form-check-input mt-0" checked onchange="document.getElementById('watchedDateInput').disabled = !this.checked">
+                                            <label for="watchedDateCheck">Watched on</label>
+                                            <input type="date" name="watched_date" id="watchedDateInput" class="form-control form-control-sm" style="background: #445566; color: #fff; border: none; font-size: 0.8rem; width: 130px;">
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <input type="checkbox" id="watchedBefore" name="watched_before" class="form-check-input mt-0">
+                                            <label for="watchedBefore">I've watched this before</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3" style="background: #fff; border-radius: 3px; padding: 2px;">
+                                        <textarea name="review" class="form-control border-0" rows="6" placeholder="Add a review..." style="background: transparent; color: #222; font-size: 0.9rem; resize: none; box-shadow: none;"></textarea>
+                                        <div style="background: #8AA8B9; padding: 0.5rem; border-radius: 0 0 2px 2px;" class="d-flex align-items-center gap-2">
+                                            <input type="checkbox" id="containsSpoilers" name="contains_spoilers" class="form-check-input mt-0">
+                                            <label for="containsSpoilers" style="color: #fff; font-size: 0.85rem; font-weight: 600;">Contains spoilers</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row align-items-center mb-4">
+                                        <div class="col-5">
+                                            <label style="font-size: 0.75rem; color: #fff; font-weight: 600;">Tags</label>
+                                            <input type="text" name="tags" class="form-control form-control-sm" placeholder="eg. netflix" style="background: #c3d2dc; border: none; color: #222;">
+                                        </div>
+                                        <div class="col-5">
+                                            <label style="font-size: 0.75rem; color: #fff; font-weight: 600; display: block; text-align: center;">Rating</label>
+                                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                                <div class="star-rating-input modal-stars" id="starRatingInput" style="color: #445566; cursor: pointer; font-size: 1.5rem;">
+                                                    <input type="hidden" name="rating" id="ratingValue">
+                                                    <span class="star-btn" data-value="1">★</span>
+                                                    <span class="star-btn" data-value="2">★</span>
+                                                    <span class="star-btn" data-value="3">★</span>
+                                                    <span class="star-btn" data-value="4">★</span>
+                                                    <span class="star-btn" data-value="5">★</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <label style="font-size: 0.75rem; color: #fff; font-weight: 600; display: block;">Like</label>
+                                            <div class="form-check d-flex justify-content-center m-0 p-0">
+                                                <input class="form-check-input d-none" type="checkbox" name="is_favorite" id="logIsFav">
+                                                <label class="form-check-label log-like-btn" for="logIsFav" style="font-size: 1.5rem; cursor: pointer; color: #445566;"><i class="bi bi-heart-fill"></i></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end" style="border-top: 1px solid #445566; padding-top: 1rem; margin-top: 1rem;">
+                                <button type="submit" class="btn fw-bold" style="background: #00E054; color: #fff; padding: 0.4rem 1.5rem;">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    // Initialize date picker to today
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('watchedDateInput');
+    if (dateInput) dateInput.value = today;
+
+    // Like button toggle
+    const likeBtn = document.querySelector('.log-like-btn');
+    const likeCheck = document.getElementById('logIsFav');
+    if (likeBtn && likeCheck) {
+        likeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            likeCheck.checked = !likeCheck.checked;
+            if(likeCheck.checked) {
+                likeBtn.style.color = '#ff8000';
+            } else {
+                likeBtn.style.color = '#445566';
+            }
+        });
+    }
+
+    // Modal Star rating click handler (Full stars only for simplicity, as per image)
+    document.querySelectorAll('#starRatingInput .star-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const val = this.dataset.value;
+            // Toggle off if same star clicked
+            const currVal = document.getElementById('ratingValue').value;
+            if(currVal === val) {
+                document.getElementById('ratingValue').value = "";
+                document.querySelectorAll('#starRatingInput .star-btn').forEach(b => b.style.color = '#445566');
+                return;
+            }
+            
+            document.getElementById('ratingValue').value = val;
+            let found = false;
+            document.querySelectorAll('#starRatingInput .star-btn').forEach(b => {
+                if (!found) b.style.color = '#00E054';
+                else b.style.color = '#445566';
+                if (b === btn) found = true;
+            });
+        });
+    });
+
+    if (document.getElementById('globalLogModal')) {
+        document.getElementById('globalLogModal').addEventListener('shown.bs.modal', function () {
+            document.getElementById('logSearchInput').focus();
+        });
+        
+        let searchTimeout = null;
+        document.getElementById('logSearchInput').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const query = e.target.value;
+            const resultsContainer = document.getElementById('logSearchResults');
+            
+            if (query.length < 3) { resultsContainer.innerHTML = ''; return; }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    
+                    resultsContainer.innerHTML = '';
+                    data.results.slice(0, 6).forEach(movie => {
+                        const year = movie.release_date ? movie.release_date.substring(0, 4) : '';
+                        const title = movie.title;
+                        const poster = movie.poster_path ? `https://image.tmdb.org/t/p/w92${movie.poster_path}` : '';
+                        
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'log-search-result';
+                        btn.innerHTML = `<img src="${poster}" alt=""> <span class="fw-bold">${title} <span style="color:var(--text-muted);font-weight:400;">${year}</span></span>`;
+                        btn.onclick = () => selectLogMovie(movie.id, title, year, poster);
+                        resultsContainer.appendChild(btn);
+                    });
+                } catch (err) { console.error(err); }
+            }, 300);
+        });
+    }
+
+    function selectLogMovie(id, title, year, poster) {
+        document.getElementById('logSearchSection').style.display = 'none';
+        document.getElementById('logFormSection').style.display = 'block';
+        document.getElementById('logTmdbId').value = id;
+        document.getElementById('logFormTitle').value = title;
+        document.getElementById('logMovieTitle').innerText = title;
+        document.getElementById('logMovieYear').innerText = year;
+        if(poster) {
+            document.getElementById('logMoviePoster').src = poster;
+            document.getElementById('logMoviePoster').style.display = 'block';
+        } else {
+            document.getElementById('logMoviePoster').style.display = 'none';
+        }
+    }
+
+    function resetLogSearch() {
+        document.getElementById('logFormSection').style.display = 'none';
+        document.getElementById('logSearchSection').style.display = 'block';
+        document.getElementById('logSearchInput').value = '';
+        document.getElementById('logSearchResults').innerHTML = '';
+        document.getElementById('logSearchInput').focus();
+    }
+    </script>
+    {% endif %}
+</body>
+</html>

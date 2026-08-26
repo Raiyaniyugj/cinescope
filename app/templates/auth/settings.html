@@ -1,0 +1,785 @@
+{% extends "base.html" %}
+{% block title %}Account Settings — CineScope{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<style>
+/* Make the crop box circular */
+.cropper-view-box,
+.cropper-face {
+  border-radius: 50%;
+}
+</style>
+<div class="container py-5" style="max-width: 960px; margin: 0 auto; color: #8AA8B9;">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-3 pb-2 border-bottom" style="border-color: #2C3440 !important;">
+        <h2 class="fw-normal mb-0 text-white" style="font-size: 1.8rem;">Account Settings</h2>
+        <div style="font-size: 0.8rem;">
+            Upgrade to <span class="badge text-dark" style="background-color: #f29221;">PRO</span> for additional features 
+            <button class="btn btn-outline-secondary btn-sm px-2 py-0 ms-1" style="font-size: 0.7rem; color: #8AA8B9; border-color: #445566;">SUBSCRIBE</button>
+        </div>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="d-flex justify-content-between mb-4 border-bottom pb-2 text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; border-color: #2C3440 !important;">
+        <div class="d-flex gap-3" id="settings-tabs">
+            <a href="#tab-profile" class="text-decoration-none settings-tab active-tab">PROFILE</a>
+            <a href="#tab-auth" class="text-decoration-none settings-tab">AUTH</a>
+            <a href="#tab-avatar" class="text-decoration-none settings-tab">AVATAR</a>
+            <a href="#tab-connections" class="text-decoration-none settings-tab">CONNECTIONS</a>
+            <a href="#tab-notifications" class="text-decoration-none settings-tab">NOTIFICATIONS</a>
+            <a href="#tab-stores" class="text-decoration-none settings-tab">STORES & STREAMING</a>
+            <a href="#tab-data" class="text-decoration-none settings-tab">DATA</a>
+        </div>
+        <a href="#" class="text-decoration-none" style="color: #678; text-transform: none;">Deactivate account</a>
+    </div>
+
+    <form method="POST" action="{{ url_for('auth.settings') }}" id="settings-form" enctype="multipart/form-data">
+        <!-- Profile Tab Content -->
+        <div class="row tab-content" id="tab-profile">
+            <!-- Left Column: Form -->
+            <div class="col-md-7">
+                <h4 class="text-white mb-4 fw-normal" style="font-size: 1.1rem;">Profile</h4>
+                
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Username <i class="bi bi-pencil-fill ms-1" style="color: #678; font-size: 0.75rem;"></i></label>
+                    <input type="text" name="username" class="form-control" value="{{ current_user.username }}">
+                </div>
+                
+                <div class="row mb-4 g-3">
+                    <div class="col-6">
+                        <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Given name</label>
+                        <input type="text" name="given_name" class="form-control" value="{{ current_user.given_name or '' }}">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Family name</label>
+                        <input type="text" name="family_name" class="form-control" value="{{ current_user.family_name or '' }}">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Email address</label>
+                    <input type="email" class="form-control" value="{{ current_user.email }}" disabled>
+                </div>
+                
+                <div class="row mb-4 g-3">
+                    <div class="col-6">
+                        <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Location</label>
+                        <input type="text" name="location" class="form-control" value="{{ current_user.location or '' }}">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Website</label>
+                        <input type="text" name="website" class="form-control" value="{{ current_user.website or '' }}">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Bio</label>
+                    <textarea name="bio" class="form-control" rows="4" style="resize: none;">{{ current_user.bio or '' }}</textarea>
+                </div>
+
+                <div class="mb-4 d-flex align-items-center gap-3">
+                    <div style="width: 250px;">
+                        <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Pronoun <i class="bi bi-question-circle" style="color:#678"></i></label>
+                        <select name="pronoun" id="pronoun-select" class="form-select form-select-sm">
+                            <option value=""></option>
+                            <option value="He / him" {% if current_user.pronoun == 'He / him' %}selected{% endif %}>He / him</option>
+                            <option value="She / her" {% if current_user.pronoun == 'She / her' %}selected{% endif %}>She / her</option>
+                            <option value="They / their" {% if current_user.pronoun == 'They / their' %}selected{% endif %}>They / their</option>
+                        </select>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #8AA8B9; margin-top: 1.5rem;" id="pronoun-example">
+                        Example use: <span class="text-white fw-bold">{{ current_user.username }}</span> added <span class="text-white fw-bold">Pride</span><br>to <span>{% if current_user.pronoun == 'He / him' %}his{% elif current_user.pronoun == 'She / her' %}her{% else %}their{% endif %}</span> watchlist
+                    </div>
+                </div>
+
+                <div class="mb-4 d-flex align-items-center gap-3">
+                    <div style="width: 250px;">
+                        <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Posters <i class="bi bi-question-circle" style="color:#678"></i></label>
+                        <select class="form-select form-select-sm">
+                            <option value="Any">Any</option>
+                        </select>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #8AA8B9; margin-top: 1.5rem;">custom posters will be shown</div>
+                </div>
+
+                <div class="mb-4 d-flex align-items-center gap-3">
+                    <div style="width: 250px;">
+                        <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Replies <i class="bi bi-question-circle" style="color:#678"></i></label>
+                        <select class="form-select form-select-sm">
+                            <option value="Anyone">Anyone</option>
+                        </select>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #8AA8B9; margin-top: 1.5rem;">can reply to your content</div>
+                </div>
+
+                <div class="mb-2 d-flex gap-2">
+                    <input type="checkbox" id="includeMembers" class="form-check-input mt-1" checked style="background-color: #445566; border: none;">
+                    <label for="includeMembers" style="font-size: 0.85rem; color: #8AA8B9;">Include profile in the <a href="{{ url_for('members.index') }}" class="text-info text-decoration-none">Members</a> section</label>
+                </div>
+
+                <div class="mb-4 d-flex gap-2">
+                    <input type="checkbox" id="adultContent" class="form-check-input mt-1" style="background-color: #445566; border: none;">
+                    <div>
+                        <label for="adultContent" style="font-size: 0.85rem; color: #8AA8B9;">Adult content <i class="bi bi-question-circle" style="color:#678"></i></label>
+                        <div style="font-size: 0.75rem; color: #40bcf4;">Include in content from friends and search; show adult posters</div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-save fw-bold mt-2 mb-5">SAVE CHANGES</button>
+            </div>
+            
+            <!-- Right Column: Favorite Films -->
+            <div class="col-md-5 ps-md-5">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: #2C3440 !important;">
+                    <h6 class="text-uppercase fw-bold mb-0" style="color: #9ab; font-size: 0.75rem; letter-spacing: 1px;">FAVORITE FILMS</h6>
+                </div>
+                
+                <div class="d-flex gap-2 mb-2" id="favorites-container">
+                    {% for i in range(1, 5) %}
+                        {% set has_fav = i in user_favorites %}
+                        <div class="favorite-film-slot position-relative" data-order="{{ i }}" data-tmdb-id="{{ user_favorites[i].tmdb_id if has_fav else '' }}" draggable="{{ 'true' if has_fav else 'false' }}">
+                            {% if has_fav %}
+                                {% set fav = user_favorites[i] %}
+                                <img src="https://image.tmdb.org/t/p/w92{{ fav.poster_path }}" alt="{{ fav.title }}">
+                                <div class="remove-fav-btn"><i class="bi bi-x-circle-fill"></i></div>
+                            {% else %}
+                                <span class="empty-plus">+</span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div style="font-size: 0.8rem; color: #8AA8B9;">Drag posters to reorder.</div>
+            </div>
+        </div>
+
+        <!-- Auth Tab -->
+        <div class="row tab-content" id="tab-auth" style="display: none;">
+            <div class="col-md-7">
+                <h4 class="text-white mb-4 fw-normal" style="font-size: 1.1rem;">Auth</h4>
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Email address</label>
+                    <input type="email" name="email" class="form-control" value="{{ current_user.email }}">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Current password</label>
+                    <input type="password" name="current_password" class="form-control">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">New password</label>
+                    <input type="password" name="new_password" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-save fw-bold mt-2 mb-5">SAVE CHANGES</button>
+            </div>
+        </div>
+
+        <!-- Avatar Tab -->
+        <div class="row tab-content" id="tab-avatar" style="display: none;">
+            <div class="col-md-7">
+                <h4 class="text-white mb-4 fw-normal" style="font-size: 1.1rem;">Avatar</h4>
+                <div class="d-flex align-items-center gap-4 mb-4">
+                    <div class="profile-avatar-large" style="width: 80px; height: 80px; font-size: 2rem; background-color: #2C3440; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        {% if current_user.avatar_url %}
+                            <img src="{{ current_user.avatar_url }}" alt="avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            {{ current_user.username[0]|upper }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="mb-2">
+                            <input type="radio" name="avatar_type" id="avatar_upload" value="custom" {% if not current_user.avatar_url or 'gravatar.com' not in current_user.avatar_url %}checked{% endif %}>
+                            <label for="avatar_upload" class="text-white ms-1" style="font-size: 0.85rem;">Use a custom image</label>
+                        </div>
+                        <div class="mb-2">
+                            <input type="radio" name="avatar_type" id="avatar_gravatar" value="gravatar" {% if current_user.avatar_url and 'gravatar.com' in current_user.avatar_url %}checked{% endif %}>
+                            <label for="avatar_gravatar" class="text-white ms-1" style="font-size: 0.85rem;">Use Gravatar</label>
+                        </div>
+                        <div id="custom-avatar-container" class="mt-2" style="display: {% if not current_user.avatar_url or 'gravatar.com' not in current_user.avatar_url %}block{% else %}none{% endif %};">
+                            <input type="hidden" name="avatar_cropped_data" id="avatar_cropped_data">
+                            <input type="file" id="avatar_file" class="d-none" accept="image/*">
+                            <button type="button" class="btn btn-secondary btn-sm" style="background-color: #445566; border: none;" onclick="document.getElementById('avatar_file').click()">CHOOSE FILE</button>
+                            <span id="file-chosen-text" style="color: #8AA8B9; font-size: 0.75rem; margin-left: 10px;">No file chosen</span>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-save fw-bold mt-2 mb-5">SAVE CHANGES</button>
+            </div>
+        </div>
+
+        <!-- Connections Tab -->
+        <div class="row tab-content" id="tab-connections" style="display: none;">
+            <div class="col-md-7">
+                <h4 class="text-white mb-4 fw-normal" style="font-size: 1.1rem;">Connections</h4>
+                <p style="color: #8AA8B9; font-size: 0.85rem;">Connect your Letterboxd account to other services.</p>
+                <div class="d-flex gap-3 mb-4">
+                    <button type="button" class="btn text-white" style="background-color: #1DA1F2; font-size: 0.85rem; border-radius: 3px;"><i class="bi bi-twitter me-2"></i>CONNECT TWITTER</button>
+                    <button type="button" class="btn text-white" style="background-color: #4267B2; font-size: 0.85rem; border-radius: 3px;"><i class="bi bi-facebook me-2"></i>CONNECT FACEBOOK</button>
+                </div>
+                <button type="submit" class="btn btn-save fw-bold mt-2 mb-5">SAVE CHANGES</button>
+            </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div class="row tab-content" id="tab-notifications" style="display: none;">
+            <div class="col-md-7">
+                <h4 class="text-white mb-4 fw-normal" style="font-size: 1.1rem;">Notifications</h4>
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold mb-2" style="font-size: 0.8rem;">Email Notifications</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="notif1" checked style="background-color: #445566; border: none;">
+                        <label class="form-check-label text-white" for="notif1" style="font-size: 0.85rem;">News, promotions and updates from CineScope</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="notif2" checked style="background-color: #445566; border: none;">
+                        <label class="form-check-label text-white" for="notif2" style="font-size: 0.85rem;">Activity from your friends</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-save fw-bold mt-2 mb-5">SAVE CHANGES</button>
+            </div>
+        </div>
+
+        <!-- Stores Tab -->
+        <div class="row tab-content" id="tab-stores" style="display: none;">
+            <div class="col-md-7">
+                <h4 class="text-white mb-4 fw-normal" style="font-size: 1.1rem;">Stores & Streaming</h4>
+                <p style="color: #8AA8B9; font-size: 0.85rem;">Select your preferred services for watching films.</p>
+                <div class="mb-4">
+                    <label class="form-label text-white fw-bold mb-1" style="font-size: 0.8rem;">Favorite Services</label>
+                    <select class="form-select">
+                        <option>Apple TV</option>
+                        <option>Amazon Prime</option>
+                        <option>Netflix</option>
+                        <option>Hulu</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-save fw-bold mt-2 mb-5">SAVE CHANGES</button>
+            </div>
+        </div>
+
+        <!-- Data Tab -->
+        <div class="row tab-content" id="tab-data" style="display: none;">
+            <div class="col-md-7">
+                <h4 class="text-white mb-4 fw-normal" style="font-size: 1.1rem;">Data</h4>
+                <div class="mb-4">
+                    <h5 class="text-white" style="font-size: 0.9rem;">Import Your Data</h5>
+                    <p style="color: #8AA8B9; font-size: 0.85rem;">Import a CSV file of your films, ratings, and reviews.</p>
+                    <button type="button" class="btn btn-secondary btn-sm" style="background-color: #445566; border: none;">IMPORT DATA</button>
+                </div>
+                <div class="mb-4">
+                    <h5 class="text-white" style="font-size: 0.9rem;">Export Your Data</h5>
+                    <p style="color: #8AA8B9; font-size: 0.85rem;">Download a zip file containing all your data in CSV format.</p>
+                    <button type="button" class="btn btn-secondary btn-sm" style="background-color: #445566; border: none;">EXPORT DATA</button>
+                </div>
+                <button type="button" class="btn btn-save fw-bold mt-2 mb-5">SAVE CHANGES</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Search Modal for Favorite Films -->
+<div class="modal fade" id="movieSearchModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #14181C; border: 1px solid #2C3440; border-radius: 3px;">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title text-white" style="font-size: 1.1rem;">Pick a film</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="movieSearchInput" placeholder="Name of film..." autocomplete="off">
+                </div>
+                <div id="movieSearchResults" class="d-flex flex-column gap-2" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Search results will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Letterboxd Specific Styling */
+    .settings-tab {
+        color: #9ab;
+        border-bottom: 2px solid transparent;
+        padding-bottom: 3px;
+        transition: color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+    }
+    .settings-tab:hover {
+        color: #fff;
+    }
+    .settings-tab.active-tab {
+        color: #fff;
+        border-bottom-color: #00E054;
+    }
+    
+    .form-control, .form-select {
+        background-color: #2C3440;
+        border: 1px solid transparent;
+        color: #8AA8B9;
+        border-radius: 3px;
+        padding: 0.4rem 0.5rem;
+    }
+    .form-control:disabled {
+        background-color: #222831; /* slightly darker for disabled */
+        color: #678;
+        cursor: not-allowed;
+    }
+    .form-control:focus, .form-select:focus {
+        background-color: #fff;
+        border-color: #fff;
+        color: #2C3440;
+        box-shadow: 0 0 4px rgba(64, 188, 244, 0.5); /* subtle blue glow */
+    }
+    
+    .btn-save {
+        background-color: #00E054;
+        color: #fff;
+        font-size: 0.85rem;
+        padding: 0.4rem 1rem;
+        border: none;
+        border-radius: 3px;
+    }
+    .btn-save:hover {
+        background-color: #00c04b;
+        color: #fff;
+    }
+
+    /* Favorite Films Slots */
+    .favorite-film-slot {
+        width: 72px; 
+        height: 108px; 
+        background: #2C3440; 
+        border-radius: 3px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        cursor: pointer; 
+        border: 1px solid transparent;
+        transition: border-color 0.2s, transform 0.2s;
+    }
+    .favorite-film-slot:hover {
+        border-color: #40bcf4;
+    }
+    .favorite-film-slot img {
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+        border-radius: 2px;
+        pointer-events: none; /* Prevents image dragging issues */
+    }
+    .favorite-film-slot .empty-plus {
+        color: #678; 
+        font-size: 1.5rem;
+        font-weight: 300;
+        transition: color 0.2s;
+    }
+    .favorite-film-slot:hover .empty-plus {
+        color: #40bcf4;
+    }
+    
+    /* Remove Button styling */
+    .remove-fav-btn {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        color: #fff;
+        background-color: #ff4040;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        opacity: 0;
+        transition: opacity 0.2s;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .favorite-film-slot:hover .remove-fav-btn {
+        opacity: 1;
+    }
+    
+    /* Drag & Drop Visuals */
+    .favorite-film-slot.dragging {
+        opacity: 0.5;
+        border: 2px dashed #40bcf4;
+    }
+    .favorite-film-slot.drag-over {
+        border: 2px solid #00E054;
+        transform: scale(1.05);
+    }
+    
+    /* Search Results styling */
+    .search-result-item {
+        background-color: #2C3440;
+        border-radius: 3px;
+        padding: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .search-result-item:hover {
+        background-color: #445566;
+    }
+    .search-result-poster {
+        width: 35px;
+        height: 52px;
+        object-fit: cover;
+        border-radius: 2px;
+        background-color: #14181C;
+    }
+</style>
+
+<!-- Cropper Modal -->
+<div class="modal fade" id="cropperModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: #2C3440; color: #8AA8B9; border: none; overflow: hidden;">
+            <div class="modal-header" style="border-bottom: 1px solid #242c36; background: #445566;">
+                <h5 class="modal-title fw-bold text-white mb-0" style="font-size: 1.1rem; letter-spacing: 0.5px;">Crop Avatar</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="opacity: 0.5;"></button>
+            </div>
+            <div class="modal-body p-0" style="height: 400px; display: flex; align-items: center; justify-content: center; background-color: #14181C;">
+                <img id="cropperImage" src="" style="max-width: 100%; display: block;">
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #445566; background: #2C3440;">
+                <button type="button" class="btn text-white" data-bs-dismiss="modal" style="background: rgba(255,255,255,0.1); font-size: 0.75rem; font-weight: 700;">CANCEL</button>
+                <button type="button" class="btn fw-bold" id="btnCropApply" style="background: #00E054; color: #fff; padding: 0.4rem 1.5rem;">APPLY</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Tabs Logic ---
+    const tabs = document.querySelectorAll('.settings-tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Remove active state
+            tabs.forEach(t => t.classList.remove('active-tab'));
+            tabContents.forEach(c => c.style.display = 'none');
+            // Add active state
+            this.classList.add('active-tab');
+            const target = this.getAttribute('href');
+            document.querySelector(target).style.display = 'flex';
+        });
+    });
+
+    // --- Avatar Tab Logic ---
+    const avatarUploadRadio = document.getElementById('avatar_upload');
+    const avatarGravatarRadio = document.getElementById('avatar_gravatar');
+    const customAvatarContainer = document.getElementById('custom-avatar-container');
+    const avatarFileInput = document.getElementById('avatar_file');
+    const fileChosenText = document.getElementById('file-chosen-text');
+    const avatarCroppedData = document.getElementById('avatar_cropped_data');
+    const avatarPreviewImg = document.querySelector('.profile-avatar-large');
+    const cropperModalEl = document.getElementById('cropperModal');
+    let cropperModal;
+    if(cropperModalEl) cropperModal = new bootstrap.Modal(cropperModalEl);
+    const cropperImage = document.getElementById('cropperImage');
+    let cropper;
+
+    if (avatarUploadRadio && avatarGravatarRadio) {
+        avatarUploadRadio.addEventListener('change', function() {
+            if(this.checked) {
+                customAvatarContainer.style.display = 'block';
+                avatarCroppedData.value = ''; // Reset cropped data
+            }
+        });
+        avatarGravatarRadio.addEventListener('change', function() {
+            if(this.checked) {
+                customAvatarContainer.style.display = 'none';
+                avatarCroppedData.value = '';
+            }
+        });
+    }
+
+    if (avatarFileInput) {
+        avatarFileInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                fileChosenText.textContent = files[0].name;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    cropperImage.src = event.target.result;
+                    cropperModal.show();
+                };
+                reader.readAsDataURL(files[0]);
+            } else {
+                fileChosenText.textContent = 'No file chosen';
+            }
+        });
+    }
+
+    if(cropperModalEl) {
+        cropperModalEl.addEventListener('shown.bs.modal', function () {
+            cropper = new Cropper(cropperImage, {
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 0.8,
+                restore: false,
+                guides: false,
+                center: false,
+                highlight: false,
+                cropBoxMovable: false,
+                cropBoxResizable: false,
+                toggleDragModeOnDblclick: false,
+            });
+        });
+
+        cropperModalEl.addEventListener('hidden.bs.modal', function () {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        });
+
+        document.getElementById('btnCropApply').addEventListener('click', function() {
+            if (!cropper) return;
+            const canvas = cropper.getCroppedCanvas({
+                width: 200,
+                height: 200,
+            });
+            
+            // Save base64 data to hidden input
+            const base64data = canvas.toDataURL('image/png');
+            avatarCroppedData.value = base64data;
+            
+            // Update preview in UI
+            avatarPreviewImg.innerHTML = `<img src="${base64data}" alt="avatar" style="width: 100%; height: 100%; object-fit: cover;">`;
+            
+            cropperModal.hide();
+        });
+    }
+
+    // --- Dynamic Pronoun Example ---
+    const pronounSelect = document.getElementById('pronoun-select');
+    const pronounExampleSpan = document.querySelector('#pronoun-example span:last-child');
+    if (pronounSelect && pronounExampleSpan) {
+        pronounSelect.addEventListener('change', function() {
+            let val = this.value;
+            let pronounText = 'their';
+            if (val === 'He / him') pronounText = 'his';
+            else if (val === 'She / her') pronounText = 'her';
+            else if (val === 'They / their') pronounText = 'their';
+            
+            pronounExampleSpan.textContent = pronounText;
+        });
+    }
+
+    // --- Favorite Films Logic ---
+    const slots = document.querySelectorAll('.favorite-film-slot');
+    let currentSlotOrder = null;
+    const searchModal = new bootstrap.Modal(document.getElementById('movieSearchModal'));
+    const searchInput = document.getElementById('movieSearchInput');
+    const searchResults = document.getElementById('movieSearchResults');
+    let debounceTimer;
+
+    // Slot click handler (to open search or handle remove)
+    slots.forEach(slot => {
+        slot.addEventListener('click', function(e) {
+            // Check if remove button was clicked
+            if (e.target.closest('.remove-fav-btn')) {
+                removeFavorite(this);
+                return;
+            }
+            // Open modal to add/replace favorite
+            currentSlotOrder = this.dataset.order;
+            searchInput.value = '';
+            searchResults.innerHTML = '';
+            searchModal.show();
+            setTimeout(() => searchInput.focus(), 500); // Focus input when modal opens
+        });
+        
+        // Setup Drag & Drop
+        slot.addEventListener('dragstart', handleDragStart);
+        slot.addEventListener('dragenter', handleDragEnter);
+        slot.addEventListener('dragover', handleDragOver);
+        slot.addEventListener('dragleave', handleDragLeave);
+        slot.addEventListener('drop', handleDrop);
+        slot.addEventListener('dragend', handleDragEnd);
+    });
+
+    // --- Drag & Drop Handlers ---
+    let dragSrcEl = null;
+
+    function handleDragStart(e) {
+        if (this.getAttribute('draggable') !== 'true') {
+            e.preventDefault();
+            return;
+        }
+        dragSrcEl = this;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+        this.classList.add('dragging');
+    }
+
+    function handleDragOver(e) {
+        if (e.preventDefault) e.preventDefault(); // Necessary to allow dropping
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleDragEnter(e) {
+        if (this !== dragSrcEl) {
+            this.classList.add('drag-over');
+        }
+    }
+
+    function handleDragLeave(e) {
+        this.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        if (e.stopPropagation) e.stopPropagation();
+
+        if (dragSrcEl !== this) {
+            // Swap inner HTML
+            const srcHtml = dragSrcEl.innerHTML;
+            dragSrcEl.innerHTML = this.innerHTML;
+            this.innerHTML = srcHtml;
+            
+            // Swap tmdbId
+            const srcTmdbId = dragSrcEl.dataset.tmdbId;
+            dragSrcEl.dataset.tmdbId = this.dataset.tmdbId;
+            this.dataset.tmdbId = srcTmdbId;
+            
+            // Update draggable attribute based on presence of img
+            const srcHasImg = dragSrcEl.querySelector('img') !== null;
+            const thisHasImg = this.querySelector('img') !== null;
+            
+            dragSrcEl.setAttribute('draggable', srcHasImg ? 'true' : 'false');
+            this.setAttribute('draggable', thisHasImg ? 'true' : 'false');
+            
+            // Save new order to backend
+            saveFavoritesOrder();
+        }
+        return false;
+    }
+
+    function handleDragEnd(e) {
+        slots.forEach(slot => {
+            slot.classList.remove('drag-over');
+            slot.classList.remove('dragging');
+        });
+    }
+
+    // --- Search Logic ---
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const query = this.value.trim();
+        
+        if (query.length < 2) {
+            searchResults.innerHTML = '';
+            return;
+        }
+        
+        debounceTimer = setTimeout(() => {
+            // Fetch from analytics movie search api (or main api)
+            fetch(`/api/search?q=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    displaySearchResults(data.results || data);
+                })
+                .catch(err => console.error('Search error:', err));
+        }, 300);
+    });
+
+    function displaySearchResults(results) {
+        searchResults.innerHTML = '';
+        if (!results || results.length === 0) {
+            searchResults.innerHTML = '<div class="text-white text-center p-3">No results found.</div>';
+            return;
+        }
+        
+        // Filter out non-movies if it's a multi search
+        const movies = results.filter(r => (r.media_type === 'movie' || !r.media_type) && r.poster_path);
+        
+        movies.slice(0, 10).forEach(movie => {
+            const el = document.createElement('div');
+            el.className = 'search-result-item';
+            
+            const releaseYear = movie.release_date ? movie.release_date.substring(0,4) : '';
+            const posterUrl = `https://image.tmdb.org/t/p/w92${movie.poster_path}`;
+            
+            el.innerHTML = `
+                <img src="${posterUrl}" class="search-result-poster" alt="poster">
+                <div>
+                    <div class="text-white fw-bold">${movie.title}</div>
+                    <div style="color: #8AA8B9; font-size: 0.85rem;">${releaseYear}</div>
+                </div>
+            `;
+            
+            el.addEventListener('click', () => selectFavorite(movie));
+            searchResults.appendChild(el);
+        });
+    }
+
+    function selectFavorite(movie) {
+        // Find the slot and update UI immediately
+        const slot = document.querySelector(`.favorite-film-slot[data-order="${currentSlotOrder}"]`);
+        if (slot) {
+            const posterUrl = `https://image.tmdb.org/t/p/w92${movie.poster_path}`;
+            slot.innerHTML = `
+                <img src="${posterUrl}" alt="${movie.title}">
+                <div class="remove-fav-btn"><i class="bi bi-x-circle-fill"></i></div>
+            `;
+            slot.setAttribute('draggable', 'true');
+            slot.dataset.tmdbId = movie.id;
+            
+            // Send single update to backend
+            saveFavoritesOrder();
+        }
+        searchModal.hide();
+    }
+
+    function removeFavorite(slot) {
+        // Clear slot UI
+        slot.innerHTML = '<span class="empty-plus">+</span>';
+        slot.setAttribute('draggable', 'false');
+        slot.dataset.tmdbId = '';
+        
+        // Remove from backend explicitly
+        fetch('/api/remove_favorite', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({order: slot.dataset.order})
+        });
+    }
+    
+    function saveFavoritesOrder() {
+        // Collect current state of all 4 slots
+        const favsToUpdate = [];
+        slots.forEach(slot => {
+            const order = slot.dataset.order;
+            const tmdbId = slot.dataset.tmdbId;
+            if (tmdbId) {
+                favsToUpdate.push({ order: parseInt(order), tmdb_id: parseInt(tmdbId) });
+            }
+        });
+        
+        if (favsToUpdate.length > 0) {
+            fetch('/api/update_favorites', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(favsToUpdate)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(!data.success) console.error('Failed to update favorites');
+            })
+            .catch(err => console.error(err));
+        }
+    }
+});
+</script>
+{% endblock %}

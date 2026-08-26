@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Search — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="section-title mb-3">Search</h2>
+
+    <form action="{{ url_for('main.search') }}" method="GET" class="mb-4">
+        <div class="input-group" style="max-width: 500px;">
+            <input type="text" class="form-control form-control-dark" name="q" value="{{ query }}" placeholder="Film title..." autofocus>
+            <button type="submit" class="btn btn-cinescope">Search</button>
+        </div>
+    </form>
+
+    {% if query %}
+    <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+        SHOWING MATCHES FOR "{{ query }}"
+    </p>
+    {% endif %}
+
+    {% if results %}
+    <div class="search-results-list">
+        {% for result in results %}
+            {% if result.media_type == 'person' %}
+            <!-- Person Result -->
+            <div class="search-result-item position-relative hover-card">
+                <a href="{{ url_for('profiles.person', person_id=result.id) }}" class="search-result-img-link" style="z-index: 2; position: relative;">
+                    {% if result.profile_path %}
+                    <img src="{{ result.profile_path|poster_url }}" alt="{{ result.name }}" class="search-result-img person-img" loading="lazy">
+                    {% else %}
+                    <div class="search-result-img person-img placeholder-img">
+                        <i class="bi bi-star"></i>
+                    </div>
+                    {% endif %}
+                </a>
+                <div class="search-result-details">
+                    <a href="{{ url_for('profiles.person', person_id=result.id) }}" class="search-result-title stretched-link">{{ result.name }}</a>
+                    
+                    {% set known_for = result.known_for|default([]) %}
+                    {% if known_for %}
+                        <p class="search-result-meta mt-1">
+                            Star of films including 
+                            {% for media in known_for[:3] %}
+                                <span class="known-for-title">{{ media.title or media.name }}</span>{{ ', ' if not loop.last else '' }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                    <p class="search-result-meta">Also known as: {{ result.known_for_department }}</p>
+                </div>
+            </div>
+            {% elif result.media_type == 'tv' %}
+            <!-- TV Result -->
+            <div class="search-result-item position-relative hover-card">
+                <a href="{{ url_for('main.tv_detail', tv_id=result.id) }}" class="search-result-img-link" style="z-index: 2; position: relative;">
+                    {% if result.poster_path %}
+                    <img src="{{ result.poster_path|poster_url }}" alt="{{ result.name }}" class="search-result-img" loading="lazy">
+                    {% else %}
+                    <div class="search-result-img placeholder-img">
+                        <i class="bi bi-tv"></i>
+                    </div>
+                    {% endif %}
+                </a>
+                <div class="search-result-details">
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{{ url_for('main.tv_detail', tv_id=result.id) }}" class="search-result-title stretched-link">{{ result.name }}</a>
+                        <span class="badge" style="background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-muted); font-size: 0.65rem; z-index: 2; position: relative;">TV SHOW</span>
+                    </div>
+                    {% if result.first_air_date %}
+                    <span class="search-result-year" style="margin-left: 0;">{{ result.first_air_date[:4] }}</span>
+                    {% endif %}
+                    
+                    {% if result.overview %}
+                    <p class="search-result-overview mt-2">{{ result.overview[:150] }}...</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% elif result.media_type == 'company' %}
+            <!-- Company/Studio Result -->
+            <div class="search-result-item position-relative hover-card" style="padding: 15px 0;">
+                <a href="{{ url_for('main.studio', company_id=result.id) }}" class="search-result-img-link" style="z-index: 2; position: relative; display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; margin-right: 20px;">
+                    <i class="bi bi-camera-reels-fill" style="font-size: 32px; color: #445566;"></i>
+                </a>
+                <div class="search-result-details" style="display: flex; flex-direction: column; justify-content: center;">
+                    <a href="{{ url_for('main.studio', company_id=result.id) }}" class="search-result-title stretched-link" style="font-size: 16px; margin-bottom: 2px;">{{ result.name }}</a>
+                    <p class="search-result-meta" style="margin: 0; font-size: 12px; color: #678;">
+                        Studio for {{ result.total_movies }} films{% if result.top_movies %}, including 
+                        {% for title in result.top_movies %}
+                            <span style="color: #8AA8B9; background: #242c36; padding: 2px 6px; border-radius: 3px; font-size: 11px;">{{ title }}</span>
+                        {% endfor %}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% else %}
+            <!-- Movie Result -->
+            <div class="search-result-item position-relative hover-card">
+                <a href="{{ url_for('main.movie_detail', movie_id=result.id) }}" class="search-result-img-link" style="z-index: 2; position: relative;">
+                    {% if result.poster_path %}
+                    <img src="{{ result.poster_path|poster_url }}" alt="{{ result.title }}" class="search-result-img" loading="lazy">
+                    {% else %}
+                    <div class="search-result-img placeholder-img">
+                        <i class="bi bi-film"></i>
+                    </div>
+                    {% endif %}
+                </a>
+                <div class="search-result-details">
+                    <a href="{{ url_for('main.movie_detail', movie_id=result.id) }}" class="search-result-title stretched-link">{{ result.title }}</a>
+                    {% if result.release_date %}
+                    <span class="search-result-year">{{ result.release_date[:4] }}</span>
+                    {% endif %}
+                    
+                    {% if result.director %}
+                    <p class="search-result-meta mt-1">Directed by <span class="director-name">{{ result.director.name }}</span></p>
+                    {% endif %}
+                    
+                    {% if result.overview %}
+                    <p class="search-result-overview mt-2">{{ result.overview[:150] }}...</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% elif query %}
+    <p style="color: var(--text-muted); padding: 2rem 0;">No matches found. Try a different term.</p>
+    {% endif %}
+</div>
+{% endblock %}

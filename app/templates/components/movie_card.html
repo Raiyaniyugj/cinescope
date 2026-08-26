@@ -1,0 +1,17 @@
+{% set is_watched = 'true' if movie.id in user_watched_ids else 'false' %}
+{% set is_watchlist = 'true' if movie.id in user_watchlist_ids else 'false' %}
+{% set is_doc = 'false' %}
+{% if movie.genre_ids and 99 in movie.genre_ids %}{% set is_doc = 'true' %}{% endif %}
+{% if movie.genres %}{% for g in movie.genres %}{% if g.id == 99 %}{% set is_doc = 'true' %}{% endif %}{% endfor %}{% endif %}
+
+<div class="movie-card" data-watched="{{ is_watched }}" data-watchlist="{{ is_watchlist }}" data-documentary="{{ is_doc }}">
+    <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+        <div class="poster-wrapper position-relative" style="border-radius: 4px; overflow: hidden; border: 1px solid #14181C; border-bottom-color: rgba(255,255,255,0.2); transition: transform 0.2s;">
+            {% if movie.poster_path %}
+            <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" style="width: 100%; aspect-ratio: 2/3; object-fit: cover;">
+            {% else %}
+            <div style="width: 100%; aspect-ratio: 2/3; background: #2C3440; display:flex; align-items:center; justify-content:center;"><i class="bi bi-film text-secondary"></i></div>
+            {% endif %}
+        </div>
+    </a>
+</div>

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Studios — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="section-title mb-1"><span class="icon"><i class="bi bi-building"></i></span> Studios</h2>
+    <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 1.5rem;">Browse movies by production studio</p>
+
+    <div class="row g-3">
+        {% for studio in studios %}
+        <div class="col-lg-3 col-md-4 col-6">
+            <a href="{{ url_for('main.studio_movies', company_id=studio.id) }}" class="text-decoration-none">
+                <div class="studio-card">
+                    <div class="studio-icon"><i class="bi bi-camera-reels"></i></div>
+                    <div class="studio-name">{{ studio.name }}</div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

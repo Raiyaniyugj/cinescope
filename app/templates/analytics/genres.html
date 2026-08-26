@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Genre Analytics — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="section-title mb-1">Genre Analytics</h2>
+    <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 1.5rem;">Distribution, ratings, and trends across popular releases.</p>
+
+    {% if charts %}
+    <div class="row g-4">
+        {% if charts.dist_chart %}
+        <div class="col-lg-6">
+            <div class="chart-container">{{ charts.dist_chart|safe }}</div>
+        </div>
+        {% endif %}
+        {% if charts.rating_chart %}
+        <div class="col-lg-6">
+            <div class="chart-container">{{ charts.rating_chart|safe }}</div>
+        </div>
+        {% endif %}
+        {% if charts.trend_chart %}
+        <div class="col-lg-12">
+            <div class="chart-container">{{ charts.trend_chart|safe }}</div>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <p style="color: var(--text-muted); padding: 2rem 0;">No data available.</p>
+    {% endif %}
+</div>
+{% endblock %}

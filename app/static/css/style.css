@@ -1,0 +1,1866 @@
+/* ============================================
+   CineScope — Letterboxd Clone Theme
+   Exact Letterboxd palette. No gradients, no glass.
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+    /* Letterboxd exact colors */
+    --bg-body: #14181c;
+    --bg-header: #14181c;
+    --bg-card: #1b2028;
+    --bg-card-hover: #242c34;
+    --bg-surface: #1b2028;
+    --bg-input: #2c3440;
+    --bg-footer: #2c3440;
+
+    --text-primary: #def;
+    --text-secondary: #9ab;
+    --text-muted: #678;
+    --text-white: #fff;
+
+    --accent: #00e054;
+    --accent-hover: #00c349;
+    --accent-dim: rgba(0, 224, 84, 0.08);
+    --blue: #40bcf4;
+    --orange: #ff8000;
+    --red: #e74c3c;
+
+    --border: #303840;
+    --border-hover: #445566;
+    --border-subtle: rgba(255, 255, 255, 0.04);
+
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --radius: 3px;
+    --radius-lg: 6px;
+    --transition: 150ms ease;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font);
+    background: var(--bg-body);
+    color: var(--text-secondary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font);
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+a {
+    color: var(--blue);
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+a:hover {
+    color: var(--accent);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-body);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+/* ==============================
+   NAVBAR — Letterboxd style
+   ============================== */
+.navbar-cinescope {
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+}
+
+.navbar-cinescope .container {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.navbar-cinescope .navbar-brand {
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--text-primary) !important;
+    letter-spacing: -0.5px;
+    padding: 0.6rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Letterboxd-style three colored dots */
+.brand-dots {
+    display: flex;
+    gap: 2px;
+}
+
+.brand-dots .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.brand-dots .dot-orange {
+    background: #ff8000;
+}
+
+.brand-dots .dot-green {
+    background: #00e054;
+}
+
+.brand-dots .dot-blue {
+    background: #40bcf4;
+}
+
+.navbar-cinescope .navbar-brand:hover {
+    color: var(--accent) !important;
+}
+
+.navbar-cinescope .nav-link {
+    color: var(--text-muted) !important;
+    font-weight: 500;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 0.75rem 0.6rem !important;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition);
+}
+
+.navbar-cinescope .nav-link:hover {
+    color: var(--text-primary) !important;
+}
+
+.navbar-cinescope .nav-link.active {
+    color: var(--text-white) !important;
+    border-bottom-color: var(--accent);
+}
+
+.navbar-cinescope .navbar-toggler {
+    border-color: var(--border);
+    padding: 0.25rem 0.45rem;
+}
+
+.navbar-cinescope .navbar-toggler-icon {
+    filter: invert(0.6);
+}
+
+.navbar-cinescope .dropdown-menu {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.navbar-cinescope .dropdown-item {
+    color: var(--text-secondary) !important;
+    font-size: 0.82rem;
+    padding: 0.4rem 0.9rem;
+    transition: all var(--transition);
+}
+
+.navbar-cinescope .dropdown-item:hover {
+    background: var(--accent-dim);
+    color: var(--accent) !important;
+}
+
+.nav-search-form {
+    position: relative;
+}
+
+.nav-search-form .form-control {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    border-radius: 20px;
+    padding: 0.3rem 0.75rem 0.3rem 2rem;
+    font-size: 0.78rem;
+    width: 180px;
+    transition: all var(--transition);
+}
+
+.nav-search-form .form-control:focus {
+    width: 240px;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+    background: var(--bg-card);
+}
+
+.nav-search-form .form-control::placeholder {
+    color: var(--text-muted);
+}
+
+.nav-search-form .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+/* ==============================
+   HERO / FEATURED BACKDROP
+   ============================== */
+.hero-featured {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    margin-bottom: 0;
+}
+
+.hero-featured .hero-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.hero-featured .hero-backdrop img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.35) saturate(1.1);
+}
+
+.hero-featured .hero-backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, var(--bg-body) 0%, rgba(20, 24, 28, 0.6) 40%, transparent 100%);
+}
+
+.hero-featured .hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 2rem 0;
+    width: 100%;
+}
+
+.hero-featured .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--accent);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.5rem;
+}
+
+.hero-featured .hero-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-white);
+    letter-spacing: -0.5px;
+    margin-bottom: 0.3rem;
+}
+
+.hero-featured .hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.hero-featured .hero-meta span {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.hero-featured .hero-meta .rating {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.hero-featured .hero-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    max-width: 500px;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+}
+
+/* ==============================
+   SECTIONS
+   ============================== */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0;
+}
+
+.section-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.section-title .icon {
+    color: var(--accent);
+    font-size: 0.8rem;
+}
+
+.section-link {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+.section-link:hover {
+    color: var(--accent);
+}
+
+/* ==============================
+   MOVIE GRID & CARDS — Letterboxd style
+   ============================== */
+.movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.5rem;
+}
+
+.movie-grid.large-posters {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.movie-grid-10 {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0.4rem;
+}
+
+.movie-card {
+    position: relative;
+    cursor: pointer;
+    transition: transform var(--transition);
+}
+
+.movie-card:hover {
+    transform: translateY(-2px);
+}
+
+.movie-card .poster-wrapper {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 2/3;
+    background: var(--bg-surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: all var(--transition);
+}
+
+.movie-card:hover .poster-wrapper {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    border-color: var(--accent);
+}
+
+.movie-card .poster-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Letterboxd shows NO overlay text on posters in grids */
+.movie-card .poster-overlay {
+    display: none;
+}
+
+.movie-card .rating-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.35rem;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    z-index: 2;
+}
+
+.movie-card .card-body {
+    padding: 0.4rem 0 0;
+}
+
+.movie-card .card-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 0;
+    transition: color var(--transition);
+}
+
+.movie-card:hover .card-title {
+    color: var(--accent);
+}
+
+.movie-card .card-year {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+
+.poster-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    font-size: 2rem;
+}
+
+/* ==============================
+   MOVIE DETAIL
+   ============================== */
+.movie-detail-hero {
+    position: relative;
+    height: 450px;
+    display: block;
+}
+
+.movie-detail-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.movie-detail-backdrop img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.25) saturate(1.2);
+}
+
+.movie-detail-backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, var(--bg-body) 0%, transparent 100%);
+}
+
+.movie-detail-content {
+    position: relative;
+    z-index: 1;
+    margin-top: -300px;
+}
+
+.detail-poster {
+    width: 230px;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.detail-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    color: var(--text-white);
+    letter-spacing: -0.3px;
+}
+
+.detail-tagline {
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    margin-bottom: 0.4rem;
+}
+
+.detail-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.detail-meta-item {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.detail-rating-large {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--accent);
+    font-weight: 800;
+    font-size: 1rem;
+}
+
+.detail-overview {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    max-width: 600px;
+}
+
+.genre-tag {
+    display: inline-block;
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-right: 0.2rem;
+    margin-bottom: 0.2rem;
+    border: 1px solid var(--border);
+    transition: all var(--transition);
+}
+
+.genre-tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Cast */
+.cast-grid {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.cast-card {
+    flex-shrink: 0;
+    text-align: center;
+    width: 75px;
+}
+
+.cast-card .cast-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    margin: 0 auto 0.3rem;
+    transition: border-color var(--transition);
+}
+
+.cast-card:hover .cast-avatar {
+    border-color: var(--accent);
+}
+
+.cast-card .cast-name {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.cast-card .cast-char {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+}
+
+/* Tabs & Letterboxd Specifics */
+.nav-tabs-letterboxd {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1rem;
+    display: flex;
+    list-style: none;
+    padding: 0;
+}
+
+.nav-tabs-letterboxd .nav-item {
+    margin-bottom: -1px;
+}
+
+.nav-tabs-letterboxd .nav-link {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.5rem 1rem;
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.nav-tabs-letterboxd .nav-link:hover {
+    color: var(--text-primary);
+}
+
+.nav-tabs-letterboxd .nav-link.active {
+    color: var(--text-white);
+    border-bottom: 2px solid var(--accent);
+}
+
+.crew-list {
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+.crew-job {
+    color: var(--text-muted);
+    width: 120px;
+    display: inline-block;
+}
+
+.crew-name {
+    color: var(--text-primary);
+}
+
+.releases-list .release-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+}
+
+.action-panel-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.5rem;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all var(--transition);
+    text-decoration: none;
+    width: 100%;
+}
+
+.action-panel-btn i {
+    font-size: 1.1rem;
+    margin-bottom: 0.1rem;
+}
+
+.action-panel-btn:hover, .action-panel-btn.active {
+    color: var(--accent);
+    background: var(--bg-card-hover);
+    border-color: var(--accent-dim);
+}
+
+.action-panel-row {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+/* Trailer */
+.trailer-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    margin: 1rem 0;
+}
+
+.trailer-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: var(--radius-lg);
+}
+
+/* ==============================
+   BUTTONS — Letterboxd style
+   ============================== */
+.btn-cinescope {
+    background: var(--accent);
+    color: #14181c;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 0.4rem 1rem;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.btn-cinescope:hover {
+    background: var(--accent-hover);
+    color: #14181c;
+    transform: translateY(-1px);
+}
+
+.btn-outline-cinescope {
+    background: transparent;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--accent);
+    cursor: pointer;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.btn-outline-cinescope:hover {
+    background: var(--accent-dim);
+    color: var(--accent);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.78rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn-ghost:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+}
+
+.btn-trailer {
+    background: rgba(255, 0, 0, 0.1);
+    color: #ff4444;
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: all var(--transition);
+}
+
+.btn-trailer:hover {
+    background: rgba(255, 0, 0, 0.18);
+    color: #ff6666;
+}
+
+/* ==============================
+   FORMS
+   ============================== */
+.form-control-dark {
+    background: var(--bg-input) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-primary) !important;
+    border-radius: var(--radius);
+    padding: 0.45rem 0.75rem;
+    font-size: 0.85rem;
+    transition: all var(--transition);
+}
+
+.form-control-dark:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px var(--accent-dim) !important;
+    background: var(--bg-card) !important;
+}
+
+.form-control-dark::placeholder {
+    color: var(--text-muted);
+}
+
+/* ==============================
+   AUTH
+   ============================== */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: var(--bg-body);
+}
+
+.auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.auth-card .auth-logo {
+    font-weight: 800;
+    font-size: 1.4rem;
+    text-align: center;
+    margin-bottom: 0.3rem;
+    color: var(--text-primary);
+}
+
+.auth-card .auth-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ==============================
+   STAT CARDS
+   ============================== */
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    text-align: center;
+    transition: all var(--transition);
+}
+
+.stat-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+}
+
+.stat-card .stat-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.15rem;
+}
+
+.stat-card .stat-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+/* ==============================
+   CHART CONTAINERS
+   ============================== */
+.chart-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.chart-container:hover {
+    border-color: var(--border-hover);
+}
+
+/* ==============================
+   WATCHLIST
+   ============================== */
+.watchlist-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: transparent;
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 0.6rem 0;
+    transition: all var(--transition);
+}
+
+.watchlist-item:hover {
+    background: var(--bg-card);
+}
+
+.watchlist-item .wl-poster {
+    width: 40px;
+    height: 60px;
+    border-radius: var(--radius);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--bg-surface);
+}
+
+.watchlist-item .wl-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.watchlist-item .wl-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.watchlist-item .wl-meta {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.watchlist-item .wl-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+}
+
+/* ==============================
+   DIRECTOR CARDS
+   ============================== */
+.director-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    text-align: center;
+    transition: all var(--transition);
+}
+
+.director-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-hover);
+}
+
+.director-card .director-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    margin-bottom: 0.6rem;
+    background: var(--bg-surface);
+}
+
+.director-card:hover .director-avatar {
+    border-color: var(--accent);
+}
+
+.director-card .director-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ==============================
+   PROFILE — Letterboxd clone
+   ============================== */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem 0;
+}
+
+.profile-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #14181c;
+    flex-shrink: 0;
+}
+
+/* Profile tabs */
+.profile-tabs .nav-link {
+    color: var(--text-muted) !important;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 0.8rem;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    transition: all var(--transition);
+}
+
+.profile-tabs .nav-link:hover {
+    color: var(--text-primary) !important;
+}
+
+.profile-tabs .nav-link.active {
+    color: var(--text-white) !important;
+    border-bottom-color: var(--accent) !important;
+    background: transparent !important;
+}
+
+/* ==============================
+   LIST POSTER STACK — Letterboxd style
+   ============================== */
+.list-poster-stack {
+    display: flex;
+    position: relative;
+    height: 141px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.list-poster-stack img {
+    position: absolute;
+    width: 94px;
+    height: 141px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+    object-fit: cover;
+    border-radius: var(--radius);
+    transition: transform var(--transition);
+}
+
+.list-poster-stack img:nth-child(1) {
+    left: 0;
+    z-index: 5;
+}
+
+.list-poster-stack img:nth-child(2) {
+    left: 20px;
+    z-index: 4;
+}
+
+.list-poster-stack img:nth-child(3) {
+    left: 40px;
+    z-index: 3;
+}
+
+.list-poster-stack img:nth-child(4) {
+    left: 60px;
+    z-index: 2;
+}
+
+.list-poster-stack img:nth-child(5) {
+    left: 80px;
+    z-index: 1;
+}
+
+.list-poster-stack:hover img {
+    transform: translateY(-2px);
+}
+
+.list-card-empty {
+    background: var(--bg-surface);
+    height: 141px;
+    width: 94px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--border);
+}
+
+/* ==============================
+   DIARY ROW
+   ============================== */
+.diary-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background var(--transition);
+}
+
+.diary-row:hover {
+    background: var(--bg-card);
+}
+
+.diary-row .diary-date {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    width: 40px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.diary-row .diary-poster {
+    width: 35px;
+    height: 52px;
+    border-radius: 2px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.diary-row .diary-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.diary-row .diary-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.diary-row .diary-rating {
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* ==============================
+   ACTIVITY ENTRY
+   ============================== */
+.activity-entry {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.activity-entry .activity-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #14181c;
+    flex-shrink: 0;
+}
+
+.activity-entry .activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-entry .activity-text {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.activity-entry .activity-text strong {
+    color: var(--text-primary);
+}
+
+.activity-entry .activity-text .film-link {
+    color: var(--text-white);
+    font-weight: 600;
+}
+
+.activity-entry .activity-time {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+}
+
+/* ==============================
+   ALERTS
+   ============================== */
+.alert-cinescope {
+    border: none;
+    border-radius: var(--radius);
+    font-size: 0.82rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.alert-cinescope.alert-success {
+    background: rgba(0, 224, 84, 0.1);
+    color: var(--accent);
+    border-left: 3px solid var(--accent);
+}
+
+.alert-cinescope.alert-danger {
+    background: rgba(231, 76, 60, 0.1);
+    color: var(--red);
+    border-left: 3px solid var(--red);
+}
+
+.alert-cinescope.alert-warning {
+    background: rgba(255, 128, 0, 0.1);
+    color: var(--orange);
+    border-left: 3px solid var(--orange);
+}
+
+.alert-cinescope.alert-info {
+    background: rgba(64, 188, 244, 0.1);
+    color: var(--blue);
+    border-left: 3px solid var(--blue);
+}
+
+.demo-banner {
+    background: rgba(255, 128, 0, 0.06);
+    border-bottom: 1px solid rgba(255, 128, 0, 0.1);
+    color: var(--text-muted);
+    text-align: center;
+    padding: 0.3rem 1rem;
+    font-size: 0.7rem;
+}
+
+.demo-banner strong {
+    color: var(--orange);
+}
+
+/* ==============================
+   GENRE FILTER TABS
+   ============================== */
+.genre-tabs {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    scrollbar-width: none;
+}
+
+.genre-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.genre-tab {
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    text-decoration: none;
+}
+
+.genre-tab:hover,
+.genre-tab.active {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ==============================
+   RATING SELECTOR
+   ============================== */
+.rating-selector {
+    display: inline-flex;
+    gap: 1px;
+}
+
+.rating-selector .star-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 1px;
+    transition: color var(--transition);
+}
+
+.rating-selector .star-btn:hover {
+    color: var(--accent);
+}
+
+.rating-selector .star-btn.active {
+    color: var(--accent);
+}
+
+/* ==============================
+   FOOTER — Letterboxd style
+   ============================== */
+.footer-cinescope {
+    background: var(--bg-footer);
+    border-top: 1px solid var(--border);
+    padding: 1.25rem 0;
+    margin-top: 2rem;
+}
+
+.footer-cinescope .footer-text {
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+.footer-cinescope .footer-text .highlight {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* ==============================
+   STUDIO CARDS
+   ============================== */
+.studio-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1rem;
+    text-align: center;
+    transition: all var(--transition);
+    cursor: pointer;
+}
+
+.studio-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+}
+
+.studio-icon {
+    font-size: 1.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+}
+
+.studio-card:hover .studio-icon {
+    color: var(--accent);
+}
+
+.studio-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ==============================
+   PROVIDER BADGES
+   ============================== */
+.provider-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: all var(--transition);
+}
+
+.provider-badge:hover {
+    border-color: var(--accent);
+    transform: scale(1.08);
+}
+
+.provider-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ==============================
+   UTILITIES
+   ============================== */
+.text-accent {
+    color: var(--accent) !important;
+}
+
+.text-orange {
+    color: var(--orange) !important;
+}
+
+.text-blue {
+    color: var(--blue) !important;
+}
+
+.text-muted-custom {
+    color: var(--text-muted) !important;
+}
+
+.hover-text-cinescope:hover {
+    color: var(--accent) !important;
+}
+
+.fade-in {
+    animation: fadeUp 0.4s ease both;
+}
+
+.stagger-1 {
+    animation-delay: 0.05s;
+}
+
+.stagger-2 {
+    animation-delay: 0.1s;
+}
+
+.stagger-3 {
+    animation-delay: 0.15s;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==============================
+   RESPONSIVE
+   ============================== */
+@media (max-width: 768px) {
+    .hero-featured {
+        min-height: 280px;
+    }
+
+    .hero-featured .hero-title {
+        font-size: 1.4rem;
+    }
+
+    .movie-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.4rem;
+    }
+
+    .detail-poster {
+        width: 140px;
+    }
+
+    .detail-title {
+        font-size: 1.3rem;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .nav-search-form .form-control {
+        width: 130px;
+    }
+
+    .friend-activity-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .movie-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.3rem;
+    }
+
+    .hero-featured .hero-title {
+        font-size: 1.2rem;
+    }
+
+    .hero-featured .hero-desc {
+        display: none;
+    }
+
+    .friend-activity-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ==============================
+   + LOG BUTTON — Letterboxd green pill
+   ============================== */
+.btn-log-film {
+    background: var(--accent) !important;
+    color: #14181c !important;
+    font-weight: 800;
+    font-size: 0.72rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 3px;
+    border: none;
+    letter-spacing: 0.5px;
+    transition: all var(--transition);
+}
+
+.btn-log-film:hover {
+    background: var(--accent-hover) !important;
+    color: #14181c !important;
+}
+
+.btn-log-film::after {
+    display: none;
+}
+
+/* hide default dropdown caret */
+.btn-log-film.dropdown-toggle::after {
+    display: inline-block;
+    margin-left: 3px;
+    vertical-align: middle;
+    border-top: 4px solid;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+}
+
+/* ==============================
+   FRIEND ACTIVITY CARDS — Letterboxd homepage
+   ============================== */
+.friend-activity-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.6rem;
+}
+
+.friend-activity-card {
+    position: relative;
+}
+
+.friend-activity-card .fac-poster {
+    position: relative;
+    aspect-ratio: 2/3;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    transition: all var(--transition);
+}
+
+.friend-activity-card .fac-poster:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    transform: translateY(-2px);
+}
+
+.friend-activity-card .fac-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.friend-activity-card .fac-user-badge {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.75);
+    padding: 2px 6px 2px 2px;
+    border-radius: 20px;
+    backdrop-filter: blur(4px);
+}
+
+.friend-activity-card .fac-user-badge span {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--text-white);
+}
+
+.friend-activity-card .fac-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+    font-size: 0.68rem;
+}
+
+.friend-activity-card .fac-stars {
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.friend-activity-card .fac-date {
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+/* ==============================
+   STAR RATING INPUT
+   ============================== */
+.star-rating-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+
+.star-rating-input .star-btn {
+    display: inline-block;
+    padding: 3px 6px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: transparent;
+    transition: all var(--transition);
+    user-select: none;
+}
+
+.star-rating-input .star-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-dim);
+}
+
+.star-rating-input .star-btn.active {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-dim);
+}
+
+/* ==============================
+   LOG SEARCH RESULTS
+   ============================== */
+.log-search-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-bottom: 1px solid var(--border-subtle);
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    text-align: left;
+    transition: background var(--transition);
+    font-size: 0.85rem;
+}
+
+.log-search-result:hover {
+    background: var(--bg-card-hover);
+}
+
+.log-search-result img {
+    width: 30px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+/* ==============================
+   WHERE TO WATCH — clean sidebar
+   ============================== */
+.where-to-watch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.where-to-watch .wtw-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.75rem;
+}
+
+.where-to-watch .wtw-category {
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 0.35rem;
+    margin-top: 0.5rem;
+}
+
+.provider-badge {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--bg-surface);
+    border: none;
+}
+
+.provider-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Letterboxd-style Interactive Star Rating */
+.rating-widget {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    font-size: 1.8rem;
+    line-height: 1;
+}
+
+.rating-widget input {
+    display: none;
+}
+
+.rating-widget label {
+    cursor: pointer;
+    color: var(--border);
+    margin: 0;
+    padding: 0 0.1rem;
+    transition: color 0.1s ease;
+}
+
+.rating-widget label::before {
+    content: '★';
+}
+
+.rating-widget input:checked ~ label {
+    color: var(--accent);
+}
+
+.rating-widget label:hover,
+.rating-widget label:hover ~ label {
+    color: var(--accent-hover);
+}
+
+/* ==============================
+   SEARCH RESULTS LIST
+   ============================== */
+.search-results-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-result-item {
+    display: flex;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 1.5rem;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-img-link {
+    flex-shrink: 0;
+}
+
+.search-result-img {
+    width: 70px;
+    height: 105px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-subtle);
+    background-color: var(--bg-surface);
+}
+
+.search-result-img.person-img {
+    height: 70px;
+    border-radius: 50%;
+    object-position: center top;
+}
+
+.placeholder-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 2rem;
+}
+
+.search-result-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.search-result-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-white);
+    text-decoration: none;
+}
+
+.search-result-title:hover {
+    color: var(--accent);
+}
+
+.search-result-year {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+}
+
+.search-result-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.search-result-overview {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin: 0;
+}
+
+.known-for-title {
+    color: var(--text-white);
+    background: var(--bg-surface);
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    font-size: 0.8rem;
+}. h o v e r - c a r d   {   t r a n s i t i o n :   b a c k g r o u n d - c o l o r   0 . 2 s   e a s e ,   t r a n s f o r m   0 . 2 s   e a s e ;   b o r d e r - r a d i u s :   8 p x ;   p a d d i n g :   0 . 5 r e m ;   m a r g i n :   - 0 . 5 r e m ;   m a r g i n - b o t t o m :   0 . 5 r e m ;   }   . h o v e r - c a r d : h o v e r   {   b a c k g r o u n d - c o l o r :   r g b a ( 2 5 5 , 2 5 5 , 2 5 5 , 0 . 0 3 ) ;   }  
+ 

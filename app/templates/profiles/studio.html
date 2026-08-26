@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}{{ company.name }} — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4 align-items-center mb-5">
+        <div class="col-md-3 text-center">
+            {% if company.logo_path %}
+            <div class="bg-white p-3 rounded shadow">
+                <img src="https://image.tmdb.org/t/p/w500{{ company.logo_path }}" alt="{{ company.name }}" class="img-fluid" style="max-height: 100px;">
+            </div>
+            {% else %}
+            <div class="rounded p-4 d-flex align-items-center justify-content-center" style="background: var(--bg-surface);">
+                <i class="bi bi-camera-reels text-muted" style="font-size: 3rem;"></i>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-9">
+            <h1 class="mb-2">{{ company.name }}</h1>
+            {% if company.origin_country %}
+            <p class="text-muted"><i class="bi bi-geo-alt"></i> {{ company.origin_country }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <h4 class="mb-3">Movies Produced by {{ company.name }}</h4>
+    {% if movies %}
+    <div class="movie-grid">
+        {% for m in movies %}
+        {% if m.poster_path %}
+        <a href="{{ url_for('main.movie_detail', movie_id=m.id) }}" class="text-decoration-none">
+            <div class="movie-card">
+                <div class="poster-wrapper">
+                    <img src="https://image.tmdb.org/t/p/w342{{ m.poster_path }}" alt="{{ m.title }}" loading="lazy">
+                    <span class="rating-badge"><i class="bi bi-star-fill"></i> {{ '%.1f'|format(m.vote_average|default(0)) }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="card-title">{{ m.title }}</div>
+                    <div class="card-year">{{ m.release_date[:4] if m.release_date else '' }}</div>
+                </div>
+            </div>
+        </a>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No movies found for this studio.</p>
+    {% endif %}
+</div>
+{% endblock %}

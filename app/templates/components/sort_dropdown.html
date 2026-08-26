@@ -1,0 +1,87 @@
+{% set current_sort = sort_by | default('popularity') %}
+{% set sort_labels = {
+    'name': 'FILM NAME',
+    'release-earliest': 'RELEASE DATE',
+    'release-newest': 'RELEASE DATE',
+    'rating-highest': 'AVERAGE RATING',
+    'rating-lowest': 'AVERAGE RATING',
+    'popularity': 'FILM POPULARITY'
+} %}
+{% set active_label = sort_labels.get(current_sort, 'FILM POPULARITY') %}
+
+<div class="dropdown">
+    <a href="#" class="text-decoration-none d-flex align-items-center gap-1 hover-white"
+        data-bs-toggle="dropdown"
+        style="color: #8AA8B9; font-weight: normal; letter-spacing: 0px; text-transform: none;">Sort by
+        <span style="font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">{{ active_label }}</span> 
+        <i class="bi bi-chevron-down" style="font-size: 0.6rem;"></i>
+    </a>
+    
+    <ul class="dropdown-menu dropdown-menu-dark" style="background-color: #445566; border: 1px solid #2C3440; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 0.85rem; padding: 0.5rem 0; min-width: 200px; text-transform: none; font-weight: normal; letter-spacing: 0;">
+        
+        <!-- Film Name (Top Level) -->
+        <li>
+            {% set p = dict(request.view_args) %}
+            {% set _ = p.update({'sort_by': 'name'}) %}
+            {% set _ = p.pop('page', None) %}
+            <a class="dropdown-item {% if current_sort == 'name' %}active{% endif %}" href="{{ url_for(request.endpoint, **p) }}" style="color: {% if current_sort == 'name' %}#fff{% else %}#8AA8B9{% endif %}; background: {% if current_sort == 'name' %}transparent{% endif %}; display: flex; align-items: center; padding: 0.25rem 1rem 0.25rem 2rem; position: relative;">
+                {% if current_sort == 'name' %}<i class="bi bi-check2 text-success" style="position: absolute; left: 0.75rem;"></i>{% endif %}
+                Film Name
+            </a>
+        </li>
+        
+        <!-- Release Date -->
+        <li><h6 class="dropdown-header" style="color: #8AA8B9; padding: 0.35rem 1rem 0.15rem 1rem; margin: 0; font-size: 0.85rem; font-weight: normal;">Release Date</h6></li>
+        <li>
+            {% set p = dict(request.view_args) %}
+            {% set _ = p.update({'sort_by': 'release-newest'}) %}
+            {% set _ = p.pop('page', None) %}
+            <a class="dropdown-item {% if current_sort == 'release-newest' %}active{% endif %}" href="{{ url_for(request.endpoint, **p) }}" style="color: {% if current_sort == 'release-newest' %}#fff{% else %}#8AA8B9{% endif %}; background: {% if current_sort == 'release-newest' %}transparent{% endif %}; display: flex; align-items: center; padding: 0.15rem 1rem 0.15rem 2rem; position: relative;">
+                {% if current_sort == 'release-newest' %}<i class="bi bi-check2 text-success" style="position: absolute; left: 0.75rem;"></i>{% endif %}
+                Newest First
+            </a>
+        </li>
+        <li>
+            {% set p = dict(request.view_args) %}
+            {% set _ = p.update({'sort_by': 'release-earliest'}) %}
+            {% set _ = p.pop('page', None) %}
+            <a class="dropdown-item {% if current_sort == 'release-earliest' %}active{% endif %}" href="{{ url_for(request.endpoint, **p) }}" style="color: {% if current_sort == 'release-earliest' %}#fff{% else %}#8AA8B9{% endif %}; background: {% if current_sort == 'release-earliest' %}transparent{% endif %}; display: flex; align-items: center; padding: 0.15rem 1rem 0.15rem 2rem; position: relative;">
+                {% if current_sort == 'release-earliest' %}<i class="bi bi-check2 text-success" style="position: absolute; left: 0.75rem;"></i>{% endif %}
+                Earliest First
+            </a>
+        </li>
+        
+        <!-- Average Rating -->
+        <li><h6 class="dropdown-header" style="color: #8AA8B9; padding: 0.35rem 1rem 0.15rem 1rem; margin: 0; font-size: 0.85rem; font-weight: normal;">Average Rating</h6></li>
+        <li>
+            {% set p = dict(request.view_args) %}
+            {% set _ = p.update({'sort_by': 'rating-highest'}) %}
+            {% set _ = p.pop('page', None) %}
+            <a class="dropdown-item {% if current_sort == 'rating-highest' %}active{% endif %}" href="{{ url_for(request.endpoint, **p) }}" style="color: {% if current_sort == 'rating-highest' %}#fff{% else %}#8AA8B9{% endif %}; background: {% if current_sort == 'rating-highest' %}transparent{% endif %}; display: flex; align-items: center; padding: 0.15rem 1rem 0.15rem 2rem; position: relative;">
+                {% if current_sort == 'rating-highest' %}<i class="bi bi-check2 text-success" style="position: absolute; left: 0.75rem;"></i>{% endif %}
+                Highest First
+            </a>
+        </li>
+        <li>
+            {% set p = dict(request.view_args) %}
+            {% set _ = p.update({'sort_by': 'rating-lowest'}) %}
+            {% set _ = p.pop('page', None) %}
+            <a class="dropdown-item {% if current_sort == 'rating-lowest' %}active{% endif %}" href="{{ url_for(request.endpoint, **p) }}" style="color: {% if current_sort == 'rating-lowest' %}#fff{% else %}#8AA8B9{% endif %}; background: {% if current_sort == 'rating-lowest' %}transparent{% endif %}; display: flex; align-items: center; padding: 0.15rem 1rem 0.15rem 2rem; position: relative;">
+                {% if current_sort == 'rating-lowest' %}<i class="bi bi-check2 text-success" style="position: absolute; left: 0.75rem;"></i>{% endif %}
+                Lowest First
+            </a>
+        </li>
+        
+        <!-- Film Popularity -->
+        <li><h6 class="dropdown-header" style="color: #8AA8B9; padding: 0.35rem 1rem 0.15rem 1rem; margin: 0; font-size: 0.85rem; font-weight: normal;">Film Popularity</h6></li>
+        <li>
+            {% set p = dict(request.view_args) %}
+            {% set _ = p.update({'sort_by': 'popularity'}) %}
+            {% set _ = p.pop('page', None) %}
+            <a class="dropdown-item {% if current_sort == 'popularity' %}active{% endif %}" href="{{ url_for(request.endpoint, **p) }}" style="color: {% if current_sort == 'popularity' %}#fff{% else %}#8AA8B9{% endif %}; background: {% if current_sort == 'popularity' %}transparent{% endif %}; display: flex; align-items: center; padding: 0.15rem 1rem 0.15rem 2rem; position: relative;">
+                {% if current_sort == 'popularity' %}<i class="bi bi-check2 text-success" style="position: absolute; left: 0.75rem;"></i>{% endif %}
+                All Time
+            </a>
+        </li>
+    </ul>
+</div>

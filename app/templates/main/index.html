@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% block title %}CineScope — Social film discovery{% endblock %}
+
+{% block content %}
+{% if demo_mode %}
+<div class="demo-banner">
+    Running in <strong>demo mode</strong> · Set <code>TMDB_API_KEY</code> in <code>.env</code> for live data
+</div>
+{% endif %}
+
+<!-- Logged-in Homepage — Letterboxd Style -->
+{% if current_user.is_authenticated %}
+<div class="container py-4">
+    <!-- Welcome Banner -->
+    <div class="mb-4" style="border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+        <p style="font-size: 1.2rem; color: var(--text-secondary); font-weight: 300;">
+            Welcome back, <a href="{{ url_for('auth.profile', username=current_user.username) }}" class="text-decoration-none" style="color: var(--text-white); font-weight: 600;">{{ current_user.username }}</a>. Here's what your friends have been watching...
+        </p>
+    </div>
+
+    <!-- New From Friends — Letterboxd-style activity cards -->
+    <div class="section-header mb-3">
+        <h2 class="section-title">New From Friends</h2>
+        <a href="{{ url_for('main.activity') }}" class="section-link"><i class="bi bi-lightning"></i> ALL ACTIVITY</a>
+    </div>
+    
+    {% if friend_activity %}
+    <div class="friend-activity-grid mb-4">
+        {% for entry in friend_activity %}
+        <div class="friend-activity-card">
+            <a href="{{ url_for('main.movie_detail', movie_id=entry.item.tmdb_id) }}" class="d-block text-decoration-none">
+                <div class="fac-poster">
+                    <img src="{{ entry.item.poster_path|poster_url }}" alt="{{ entry.item.title }}">
+                    <div class="fac-user-badge">
+                        <div class="profile-avatar-large" style="width: 18px; height: 18px; font-size: 0.5rem;">{{ entry.user.username[0]|upper }}</div>
+                        <span>{{ entry.user.username }}</span>
+                    </div>
+                </div>
+            </a>
+            <div class="fac-meta">
+                {% if entry.item.rating %}
+                <span class="fac-stars">
+                    {% for s in range((entry.item.rating * 2)|int) %}{% if loop.index % 2 == 1 %}★{% endif %}{% endfor %}{% if (entry.item.rating * 2)|int % 2 == 1 %}½{% endif %}
+                </span>
+                {% endif %}
+                {% if entry.item.is_favorite %}<span style="color: var(--red);"><i class="bi bi-heart-fill"></i></span>{% endif %}
+                {% if entry.item.review %}<span style="color: var(--text-muted);"><i class="bi bi-chat"></i></span>{% endif %}
+                <span class="fac-date">{{ entry.item.watched_at.strftime('%b %d') if entry.item.watched_at else '' }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="mb-4 p-4 text-center" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);">
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Follow some members to see their activity here! <a href="{{ url_for('members.index') }}" style="color: var(--accent);">Find Members</a></p>
+    </div>
+    {% endif %}
+
+    <!-- Popular This Week -->
+    <div class="section-header mb-3">
+        <h2 class="section-title">Popular This Week</h2>
+        <a href="#" class="section-link">MORE</a>
+    </div>
+    <div class="movie-grid large-posters mb-4">
+        {% for movie in trending[:8] %}
+        <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+            <div class="movie-card">
+                <div class="poster-wrapper">
+                    {% if movie.poster_path %}
+                    <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                    {% else %}
+                    <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Recommendations -->
+    {% if recommendations %}
+    <div class="section-header mb-3">
+        <h2 class="section-title">Recommended For You</h2>
+    </div>
+    <div class="movie-grid large-posters mb-4">
+        {% for movie in recommendations %}
+        <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+            <div class="movie-card">
+                <div class="poster-wrapper">
+                    {% if movie.poster_path %}
+                    <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                    {% else %}
+                    <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Now Playing -->
+    {% if now_playing %}
+    <div class="section-header mb-3">
+        <h2 class="section-title">New From Theaters</h2>
+        <a href="#" class="section-link">MORE</a>
+    </div>
+    <div class="movie-grid mb-4">
+        {% for movie in now_playing[:8] %}
+        <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+            <div class="movie-card">
+                <div class="poster-wrapper">
+                    {% if movie.poster_path %}
+                    <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                    {% else %}
+                    <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+{% else %}
+<!-- Logged-Out Homepage — Hero + Browse -->
+{% if featured %}
+<section class="hero-featured">
+    <div class="hero-backdrop">
+        {% if featured.backdrop_path %}
+        <img src="{{ featured.backdrop_path|backdrop_url }}" alt="{{ featured.title }}">
+        {% endif %}
+    </div>
+    <div class="container hero-content">
+        <h1 class="hero-title fade-in" style="font-size: 2.5rem;">Track films you've watched.<br>Save those you want to see.<br>Tell your friends what's good.</h1>
+        <div class="fade-in stagger-2 mt-3">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-cinescope btn-lg me-2" style="font-size: 0.88rem; padding: 0.5rem 1.5rem;">GET STARTED — IT'S FREE!</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<div class="container py-4">
+    <!-- Popular This Week -->
+    <div class="section-header mb-3">
+        <h2 class="section-title"><span class="icon"><i class="bi bi-fire"></i></span> Popular This Week</h2>
+    </div>
+    <div class="movie-grid large-posters mb-4">
+        {% for movie in trending[:12] %}
+        <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+            <div class="movie-card fade-in">
+                <div class="poster-wrapper">
+                    {% if movie.poster_path %}
+                    <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                    {% else %}
+                    <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="card-title">{{ movie.title }}</div>
+                    <div class="card-year">{{ movie.release_date[:4] if movie.release_date else '' }}</div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if now_playing %}
+    <div class="section-header mb-3">
+        <h2 class="section-title"><span class="icon"><i class="bi bi-ticket-perforated"></i></span> Now in Theaters</h2>
+    </div>
+    <div class="movie-grid mb-4">
+        {% for movie in now_playing[:12] %}
+        <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+            <div class="movie-card">
+                <div class="poster-wrapper">
+                    {% if movie.poster_path %}
+                    <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                    {% else %}
+                    <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="card-title">{{ movie.title }}</div>
+                    <div class="card-year">{{ movie.release_date[:4] if movie.release_date else '' }}</div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="section-header mb-3">
+        <h2 class="section-title"><span class="icon"><i class="bi bi-trophy"></i></span> Popular</h2>
+    </div>
+    <div class="movie-grid mb-4">
+        {% for movie in popular[:12] %}
+        <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+            <div class="movie-card">
+                <div class="poster-wrapper">
+                    {% if movie.poster_path %}
+                    <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                    {% else %}
+                    <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="card-title">{{ movie.title }}</div>
+                    <div class="card-year">{{ movie.release_date[:4] if movie.release_date else '' }}</div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

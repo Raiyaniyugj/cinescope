@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}{{ custom_list.name }} — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="profile-avatar-large" style="width: 22px; height: 22px; font-size: 0.6rem;">{{ current_user.username[0]|upper }}</div>
+                <span style="color: var(--text-muted); font-size: 0.78rem;">List by <a href="{{ url_for('auth.profile', username=current_user.username) }}" class="text-decoration-none" style="color: var(--text-primary); font-weight: 600;">{{ current_user.username }}</a></span>
+            </div>
+            
+            <h2 style="font-weight: 700; font-size: 2rem; color: var(--text-white); letter-spacing: -0.5px; margin-bottom: 0.5rem;">{{ custom_list.name }}</h2>
+            
+            {% if custom_list.description %}
+            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1rem;">{{ custom_list.description }}</p>
+            {% endif %}
+            
+            <div class="d-flex align-items-center gap-3 mb-4 pb-3" style="border-bottom: 1px solid var(--border);">
+                {% if custom_list.user_id == current_user.id %}
+                <a href="{{ url_for('lists.edit_list', list_id=custom_list.id) }}" class="btn btn-ghost" style="font-size: 0.7rem;">EDIT</a>
+                <form action="{{ url_for('lists.delete_list', list_id=custom_list.id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this list forever?');">
+                    <button type="submit" class="btn btn-ghost" style="font-size: 0.7rem; color: var(--red);">DELETE</button>
+                </form>
+                {% endif %}
+                <span class="ms-auto" style="color: var(--text-muted); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px;">{{ custom_list.movies|length }} FILMS</span>
+            </div>
+
+            <div class="d-flex justify-content-end mb-3">
+                <form id="sortForm" action="{{ url_for('lists.view_list', list_id=custom_list.id) }}" method="GET" class="d-inline">
+                    <select name="sort" class="form-select form-select-sm" onchange="document.getElementById('sortForm').submit();" style="width: auto; font-size: 0.75rem; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border);">
+                        <option value="added" {% if current_sort == 'added' %}selected{% endif %}>Date Added</option>
+                        <option value="title" {% if current_sort == 'title' %}selected{% endif %}>Title</option>
+                        <option value="year" {% if current_sort == 'year' %}selected{% endif %}>Release Year</option>
+                        <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>TMDB Rating</option>
+                    </select>
+                </form>
+            </div>
+
+            {% if sorted_movies %}
+            <div class="movie-grid">
+                {% for m in sorted_movies %}
+                <a href="{{ url_for('main.movie_detail', movie_id=m.tmdb_id) }}" class="text-decoration-none d-block">
+                    <div class="movie-card">
+                        <div class="poster-wrapper">
+                            {% if m.poster_path %}
+                            <img src="{{ m.poster_path|poster_url('w342') }}" alt="{{ m.title }}">
+                            {% else %}
+                            <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5" style="border: 1px dashed var(--border); border-radius: var(--radius-lg);">
+                <i class="bi bi-film" style="font-size: 2.5rem; color: var(--text-muted);"></i>
+                <p style="color: var(--text-muted); margin-top: 0.75rem;">This list is empty.</p>
+                {% if custom_list.user_id == current_user.id %}
+                <a href="{{ url_for('lists.edit_list', list_id=custom_list.id) }}" class="btn btn-cinescope mt-2">ADD FILMS</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <div class="p-3 mt-4 mt-md-0" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);">
+                <h6 style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.75rem; font-weight: 600;">About This List</h6>
+                <div class="d-flex align-items-center gap-3 mb-3 pb-3" style="border-bottom: 1px solid var(--border-subtle);">
+                    <div class="profile-avatar-large" style="width: 36px; height: 36px; font-size: 1rem;">{{ current_user.username[0]|upper }}</div>
+                    <div>
+                        <div style="color: var(--text-primary); font-weight: 600; font-size: 0.85rem;">{{ current_user.username }}</div>
+                        <div style="color: var(--text-muted); font-size: 0.72rem;">{{ custom_list.updated_at.strftime('%b %d, %Y') if custom_list.updated_at else custom_list.created_at.strftime('%b %d, %Y') }}</div>
+                    </div>
+                </div>
+                
+                <a href="{{ url_for('auth.profile', username=current_user.username) }}" class="btn btn-ghost w-100" style="font-size: 0.7rem;">VIEW PROFILE</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

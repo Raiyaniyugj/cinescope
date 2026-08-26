@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% block title %}Compare Movies — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="section-title mb-3"><span class="icon"><i class="bi bi-layout-split"></i></span> Compare Movies</h2>
+    <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 1.5rem;">Search for any two movies and see them side by side.</p>
+
+    <!-- Search Form -->
+    <form action="{{ url_for('analytics.compare_movies') }}" method="GET" class="mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label-dark">Movie 1</label>
+                <div class="position-relative">
+                    <input type="text" class="form-control form-control-dark" id="m1Search" placeholder="Search movie..."
+                           value="{{ movie1.title if movie1 else '' }}" autocomplete="off">
+                    <input type="hidden" name="m1" id="m1Id" value="{{ movie1.id if movie1 else '' }}">
+                    <div id="m1Results" class="autocomplete-results"></div>
+                </div>
+            </div>
+            <div class="col-auto d-flex align-items-center" style="font-size: 1.5rem; color: var(--text-muted);">
+                <i class="bi bi-arrows-angle-expand"></i>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label-dark">Movie 2</label>
+                <div class="position-relative">
+                    <input type="text" class="form-control form-control-dark" id="m2Search" placeholder="Search movie..."
+                           value="{{ movie2.title if movie2 else '' }}" autocomplete="off">
+                    <input type="hidden" name="m2" id="m2Id" value="{{ movie2.id if movie2 else '' }}">
+                    <div id="m2Results" class="autocomplete-results"></div>
+                </div>
+            </div>
+            <div class="col-md col-12">
+                <button type="submit" class="btn btn-cinescope w-100"><i class="bi bi-bar-chart me-1"></i> Compare</button>
+            </div>
+        </div>
+    </form>
+
+    {% if movie1 and movie2 %}
+    <!-- Side by Side Comparison -->
+    <div class="row g-4 mb-4">
+        <!-- Movie 1 -->
+        <div class="col-md-6">
+            <div class="chart-container text-center">
+                <a href="{{ url_for('main.movie_detail', movie_id=movie1.id) }}">
+                    {% if movie1.poster_path %}
+                    <img src="https://image.tmdb.org/t/p/w342{{ movie1.poster_path }}" alt="{{ movie1.title }}"
+                         style="height: 280px; border-radius: var(--radius-lg); margin-bottom: 1rem;">
+                    {% endif %}
+                </a>
+                <h4 style="font-weight: 700; margin-bottom: 0.3rem;">{{ movie1.title }}</h4>
+                <p style="color: var(--text-muted); font-size: 0.82rem;">{{ movie1.release_date[:4] if movie1.release_date else '' }}</p>
+            </div>
+        </div>
+        <!-- Movie 2 -->
+        <div class="col-md-6">
+            <div class="chart-container text-center">
+                <a href="{{ url_for('main.movie_detail', movie_id=movie2.id) }}">
+                    {% if movie2.poster_path %}
+                    <img src="https://image.tmdb.org/t/p/w342{{ movie2.poster_path }}" alt="{{ movie2.title }}"
+                         style="height: 280px; border-radius: var(--radius-lg); margin-bottom: 1rem;">
+                    {% endif %}
+                </a>
+                <h4 style="font-weight: 700; margin-bottom: 0.3rem;">{{ movie2.title }}</h4>
+                <p style="color: var(--text-muted); font-size: 0.82rem;">{{ movie2.release_date[:4] if movie2.release_date else '' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Comparison Table -->
+    <div class="chart-container">
+        <table style="width: 100%; font-size: 0.88rem; border-collapse: separate; border-spacing: 0 6px;">
+            <thead>
+                <tr>
+                    <th style="color: var(--text-muted); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; padding: 0.5rem 0;">Metric</th>
+                    <th style="text-align: center; color: var(--accent); font-weight: 700; padding: 0.5rem 0;">{{ movie1.title[:25] }}{% if movie1.title|length > 25 %}...{% endif %}</th>
+                    <th style="text-align: center; color: var(--orange); font-weight: 700; padding: 0.5rem 0;">{{ movie2.title[:25] }}{% if movie2.title|length > 25 %}...{% endif %}</th>
+                    <th style="text-align: center; color: var(--text-muted); padding: 0.5rem 0;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rating -->
+                <tr style="background: var(--bg-surface); border-radius: var(--radius);">
+                    <td style="padding: 0.6rem 0.75rem; border-radius: var(--radius) 0 0 var(--radius);"><i class="bi bi-star-fill text-accent me-1"></i> Rating</td>
+                    <td style="text-align: center; padding: 0.6rem; font-weight: 700;">{{ '%.1f'|format(movie1.vote_average|default(0)) }}</td>
+                    <td style="text-align: center; padding: 0.6rem; font-weight: 700;">{{ '%.1f'|format(movie2.vote_average|default(0)) }}</td>
+                    <td style="text-align: center; padding: 0.6rem; border-radius: 0 var(--radius) var(--radius) 0;">
+                        {% if (movie1.vote_average|default(0)) > (movie2.vote_average|default(0)) %}
+                        <span style="color: var(--accent); font-size: 0.7rem;">◀ HIGHER</span>
+                        {% elif (movie2.vote_average|default(0)) > (movie1.vote_average|default(0)) %}
+                        <span style="color: var(--orange); font-size: 0.7rem;">HIGHER ▶</span>
+                        {% else %}
+                        <span style="color: var(--text-muted); font-size: 0.7rem;">TIE</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <!-- Votes -->
+                <tr>
+                    <td style="padding: 0.6rem 0.75rem;"><i class="bi bi-people me-1"></i> Votes</td>
+                    <td style="text-align: center; padding: 0.6rem;">{{ '{:,}'.format(movie1.vote_count|default(0)) }}</td>
+                    <td style="text-align: center; padding: 0.6rem;">{{ '{:,}'.format(movie2.vote_count|default(0)) }}</td>
+                    <td style="text-align: center; padding: 0.6rem;">
+                        {% if (movie1.vote_count|default(0)) > (movie2.vote_count|default(0)) %}
+                        <span style="color: var(--accent); font-size: 0.7rem;">◀</span>
+                        {% elif (movie2.vote_count|default(0)) > (movie1.vote_count|default(0)) %}
+                        <span style="color: var(--orange); font-size: 0.7rem;">▶</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <!-- Runtime -->
+                <tr style="background: var(--bg-surface);">
+                    <td style="padding: 0.6rem 0.75rem; border-radius: var(--radius) 0 0 var(--radius);"><i class="bi bi-clock me-1"></i> Runtime</td>
+                    <td style="text-align: center; padding: 0.6rem;">{{ movie1.runtime|default('—') }} min</td>
+                    <td style="text-align: center; padding: 0.6rem;">{{ movie2.runtime|default('—') }} min</td>
+                    <td style="text-align: center; padding: 0.6rem; border-radius: 0 var(--radius) var(--radius) 0;">
+                        {% if (movie1.runtime|default(0)) > (movie2.runtime|default(0)) %}
+                        <span style="color: var(--text-muted); font-size: 0.7rem;">◀ LONGER</span>
+                        {% elif (movie2.runtime|default(0)) > (movie1.runtime|default(0)) %}
+                        <span style="color: var(--text-muted); font-size: 0.7rem;">LONGER ▶</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <!-- Budget -->
+                {% if movie1.budget or movie2.budget %}
+                <tr>
+                    <td style="padding: 0.6rem 0.75rem;"><i class="bi bi-cash me-1"></i> Budget</td>
+                    <td style="text-align: center; padding: 0.6rem;">${{ '{:,.0f}'.format(movie1.budget|default(0)) }}</td>
+                    <td style="text-align: center; padding: 0.6rem;">${{ '{:,.0f}'.format(movie2.budget|default(0)) }}</td>
+                    <td style="text-align: center; padding: 0.6rem;">
+                        {% if (movie1.budget|default(0)) > (movie2.budget|default(0)) %}
+                        <span style="color: var(--accent); font-size: 0.7rem;">◀</span>
+                        {% elif (movie2.budget|default(0)) > (movie1.budget|default(0)) %}
+                        <span style="color: var(--orange); font-size: 0.7rem;">▶</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                <!-- Revenue -->
+                {% if movie1.revenue or movie2.revenue %}
+                <tr style="background: var(--bg-surface);">
+                    <td style="padding: 0.6rem 0.75rem; border-radius: var(--radius) 0 0 var(--radius);"><i class="bi bi-graph-up me-1"></i> Revenue</td>
+                    <td style="text-align: center; padding: 0.6rem;">${{ '{:,.0f}'.format(movie1.revenue|default(0)) }}</td>
+                    <td style="text-align: center; padding: 0.6rem;">${{ '{:,.0f}'.format(movie2.revenue|default(0)) }}</td>
+                    <td style="text-align: center; padding: 0.6rem; border-radius: 0 var(--radius) var(--radius) 0;">
+                        {% if (movie1.revenue|default(0)) > (movie2.revenue|default(0)) %}
+                        <span style="color: var(--accent); font-size: 0.7rem;">◀ MORE</span>
+                        {% elif (movie2.revenue|default(0)) > (movie1.revenue|default(0)) %}
+                        <span style="color: var(--orange); font-size: 0.7rem;">MORE ▶</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                <!-- Genres -->
+                <tr>
+                    <td style="padding: 0.6rem 0.75rem;"><i class="bi bi-tags me-1"></i> Genres</td>
+                    <td style="text-align: center; padding: 0.6rem; font-size: 0.78rem;">{{ movie1.genres|map(attribute='name')|join(', ') if movie1.genres else '—' }}</td>
+                    <td style="text-align: center; padding: 0.6rem; font-size: 0.78rem;">{{ movie2.genres|map(attribute='name')|join(', ') if movie2.genres else '—' }}</td>
+                    <td></td>
+                </tr>
+                <!-- Director -->
+                <tr style="background: var(--bg-surface);">
+                    <td style="padding: 0.6rem 0.75rem; border-radius: var(--radius) 0 0 var(--radius);"><i class="bi bi-megaphone me-1"></i> Director</td>
+                    <td style="text-align: center; padding: 0.6rem;">{{ movie1.director.name if movie1.director else '—' }}</td>
+                    <td style="text-align: center; padding: 0.6rem;">{{ movie2.director.name if movie2.director else '—' }}</td>
+                    <td style="border-radius: 0 var(--radius) var(--radius) 0;"></td>
+                </tr>
+                <!-- Language -->
+                <tr>
+                    <td style="padding: 0.6rem 0.75rem;"><i class="bi bi-translate me-1"></i> Language</td>
+                    <td style="text-align: center; padding: 0.6rem;">{{ movie1.original_language|upper if movie1.original_language else '—' }}</td>
+                    <td style="text-align: center; padding: 0.6rem;">{{ movie2.original_language|upper if movie2.original_language else '—' }}</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    {% elif not movie1 and not movie2 %}
+    <div class="text-center py-5" style="color: var(--text-muted);">
+        <i class="bi bi-layout-split" style="font-size: 3rem;"></i>
+        <p class="mt-3">Search for two movies above to see a head-to-head comparison.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.autocomplete-results {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 1000;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4); display: none; max-height: 280px; overflow-y: auto;
+}
+.autocomplete-results.show { display: block; }
+.autocomplete-item {
+    display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.75rem;
+    cursor: pointer; transition: background var(--transition); font-size: 0.85rem; color: var(--text-primary);
+}
+.autocomplete-item:hover { background: var(--accent-dim); }
+.autocomplete-item img { width: 32px; height: 48px; border-radius: 3px; object-fit: cover; }
+.autocomplete-item .placeholder-poster {
+    width: 32px; height: 48px; border-radius: 3px; background: var(--bg-input);
+    display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-muted);
+}
+.autocomplete-item .movie-info { display: flex; flex-direction: column; }
+.autocomplete-item .movie-info .year { font-size: 0.7rem; color: var(--text-muted); }
+</style>
+
+<script>
+function setupMovieAutocomplete(inputId, hiddenId, resultsId) {
+    const input = document.getElementById(inputId);
+    const hidden = document.getElementById(hiddenId);
+    const results = document.getElementById(resultsId);
+    let timeout = null;
+
+    input.addEventListener('input', function() {
+        clearTimeout(timeout);
+        const q = this.value.trim();
+        if (q.length < 2) { results.classList.remove('show'); return; }
+
+        timeout = setTimeout(() => {
+            fetch('/analytics/movie_search_api?q=' + encodeURIComponent(q))
+                .then(r => r.json())
+                .then(data => {
+                    results.innerHTML = '';
+                    if (data.length === 0) {
+                        results.innerHTML = '<div class="autocomplete-item" style="color: var(--text-muted);">No movies found</div>';
+                    }
+                    data.forEach(m => {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-item';
+                        const poster = m.poster_path
+                            ? `<img src="https://image.tmdb.org/t/p/w92${m.poster_path}" alt="${m.title}">`
+                            : `<div class="placeholder-poster"><i class="bi bi-film"></i></div>`;
+                        div.innerHTML = `${poster}<div class="movie-info"><span>${m.title}</span><span class="year">${m.year} · ★ ${m.vote_average}</span></div>`;
+                        div.addEventListener('click', () => {
+                            input.value = m.title;
+                            hidden.value = m.id;
+                            results.classList.remove('show');
+                        });
+                        results.appendChild(div);
+                    });
+                    results.classList.add('show');
+                });
+        }, 300);
+    });
+
+    input.addEventListener('blur', () => setTimeout(() => results.classList.remove('show'), 350));
+    input.addEventListener('focus', () => { if (results.children.length > 0) results.classList.add('show'); });
+}
+
+setupMovieAutocomplete('m1Search', 'm1Id', 'm1Results');
+setupMovieAutocomplete('m2Search', 'm2Id', 'm2Results');
+</script>
+{% endblock %}

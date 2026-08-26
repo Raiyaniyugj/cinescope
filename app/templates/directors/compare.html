@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}Compare Directors — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="section-title mb-3"><span class="icon"><i class="bi bi-people-fill"></i></span> Compare Directors</h2>
+    <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 1.5rem;">Search for any two directors to see a side-by-side data comparison.</p>
+
+    <!-- Search-based Selection Form -->
+    <form action="{{ url_for('directors.compare') }}" method="GET" class="mb-4" id="compareForm">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label-dark">Director 1</label>
+                <div class="position-relative">
+                    <input type="text" class="form-control form-control-dark" id="dir1Search" placeholder="Search director..."
+                           value="{{ dir1.name if dir1 else '' }}" autocomplete="off">
+                    <input type="hidden" name="dir1" id="dir1Id" value="{{ dir1.id if dir1 else '' }}">
+                    <div id="dir1Results" class="autocomplete-results"></div>
+                </div>
+            </div>
+            <div class="col-auto d-flex align-items-center" style="font-size: 1.5rem; color: var(--text-muted);">
+                <i class="bi bi-arrow-left-right"></i>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label-dark">Director 2</label>
+                <div class="position-relative">
+                    <input type="text" class="form-control form-control-dark" id="dir2Search" placeholder="Search director..."
+                           value="{{ dir2.name if dir2 else '' }}" autocomplete="off">
+                    <input type="hidden" name="dir2" id="dir2Id" value="{{ dir2.id if dir2 else '' }}">
+                    <div id="dir2Results" class="autocomplete-results"></div>
+                </div>
+            </div>
+            <div class="col-md col-12">
+                <button type="submit" class="btn btn-cinescope w-100"><i class="bi bi-bar-chart me-1"></i> Compare</button>
+            </div>
+        </div>
+    </form>
+
+    {% if charts %}
+    <!-- Director Headers Side by Side -->
+    <div class="row g-4 mb-4 text-center">
+        <div class="col-md-6">
+            <a href="{{ url_for('directors.profile', director_id=dir1.id) }}" class="text-decoration-none">
+                <div class="director-card">
+                    {% if dir1.profile_path %}
+                    <img src="https://image.tmdb.org/t/p/w185{{ dir1.profile_path }}" alt="{{ dir1.name }}" class="director-avatar">
+                    {% else %}
+                    <div class="director-avatar d-flex align-items-center justify-content-center mx-auto" style="background: var(--bg-input);">
+                        <i class="bi bi-person-fill" style="font-size: 2rem; color: var(--text-muted);"></i>
+                    </div>
+                    {% endif %}
+                    <div class="director-name" style="color: var(--accent);">{{ dir1.name }}</div>
+                    <small style="color: var(--text-muted);">{{ dir1.movies|length if dir1.movies else 0 }} films</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="{{ url_for('directors.profile', director_id=dir2.id) }}" class="text-decoration-none">
+                <div class="director-card">
+                    {% if dir2.profile_path %}
+                    <img src="https://image.tmdb.org/t/p/w185{{ dir2.profile_path }}" alt="{{ dir2.name }}" class="director-avatar">
+                    {% else %}
+                    <div class="director-avatar d-flex align-items-center justify-content-center mx-auto" style="background: var(--bg-input);">
+                        <i class="bi bi-person-fill" style="font-size: 2rem; color: var(--text-muted);"></i>
+                    </div>
+                    {% endif %}
+                    <div class="director-name" style="color: var(--orange);">{{ dir2.name }}</div>
+                    <small style="color: var(--text-muted);">{{ dir2.movies|length if dir2.movies else 0 }} films</small>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Comparison Charts -->
+    <div class="row g-4">
+        {% if charts.box_chart %}
+        <div class="col-lg-12">
+            <div class="chart-container">{{ charts.box_chart|safe }}</div>
+        </div>
+        {% endif %}
+        {% if charts.financials_chart %}
+        <div class="col-lg-6">
+            <div class="chart-container">{{ charts.financials_chart|safe }}</div>
+        </div>
+        {% endif %}
+        {% if charts.genres_chart %}
+        <div class="col-lg-6">
+            <div class="chart-container">{{ charts.genres_chart|safe }}</div>
+        </div>
+        {% endif %}
+    </div>
+    {% elif not dir1 and not dir2 %}
+    <div class="text-center py-5" style="color: var(--text-muted);">
+        <i class="bi bi-arrow-left-right" style="font-size: 3rem;"></i>
+        <p class="mt-3">Search for two directors above to see a data-driven comparison.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.autocomplete-results {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 1000;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4); display: none; max-height: 250px; overflow-y: auto;
+}
+.autocomplete-results.show { display: block; }
+.autocomplete-item {
+    display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.75rem;
+    cursor: pointer; transition: background var(--transition); font-size: 0.85rem; color: var(--text-primary);
+}
+.autocomplete-item:hover { background: var(--accent-dim); }
+.autocomplete-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.autocomplete-item .placeholder-avatar {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--bg-input);
+    display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--text-muted);
+}
+</style>
+
+<script>
+function setupAutocomplete(inputId, hiddenId, resultsId) {
+    const input = document.getElementById(inputId);
+    const hidden = document.getElementById(hiddenId);
+    const results = document.getElementById(resultsId);
+    let timeout = null;
+
+    input.addEventListener('input', function() {
+        clearTimeout(timeout);
+        const q = this.value.trim();
+        if (q.length < 2) { results.classList.remove('show'); return; }
+
+        timeout = setTimeout(() => {
+            fetch('/directors/search_api?q=' + encodeURIComponent(q))
+                .then(r => r.json())
+                .then(data => {
+                    results.innerHTML = '';
+                    if (data.length === 0) {
+                        results.innerHTML = '<div class="autocomplete-item" style="color: var(--text-muted);">No directors found</div>';
+                    }
+                    data.forEach(d => {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-item';
+                        const avatar = d.profile_path
+                            ? `<img src="https://image.tmdb.org/t/p/w45${d.profile_path}" alt="${d.name}">`
+                            : `<div class="placeholder-avatar"><i class="bi bi-person"></i></div>`;
+                        div.innerHTML = `${avatar}<span>${d.name}</span>`;
+                        div.addEventListener('click', () => {
+                            input.value = d.name;
+                            hidden.value = d.id;
+                            results.classList.remove('show');
+                        });
+                        results.appendChild(div);
+                    });
+                    results.classList.add('show');
+                });
+        }, 300);
+    });
+
+    input.addEventListener('blur', () => setTimeout(() => results.classList.remove('show'), 350));
+    input.addEventListener('focus', () => { if (results.children.length > 0) results.classList.add('show'); });
+}
+
+setupAutocomplete('dir1Search', 'dir1Id', 'dir1Results');
+setupAutocomplete('dir2Search', 'dir2Id', 'dir2Results');
+</script>
+{% endblock %}

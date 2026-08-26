@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% block title %}Lists — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Lists Header -->
+    <div class="d-flex justify-content-between align-items-end mb-2 pb-2">
+        <div>
+            <h2 class="fw-normal mb-1 text-white" style="font-size: 1.8rem; font-family: 'Georgia', serif;">Lists</h2>
+            <p style="color: #8AA8B9; font-size: 0.95rem; margin-bottom: 0;">Collect, curate, and share. Lists are the perfect way to group films.</p>
+        </div>
+        <a href="{{ url_for('lists.create_list') }}" class="btn btn-sm text-white fw-bold" style="background-color: #2C3440; border-radius: 3px; font-size: 0.75rem; letter-spacing: 0.5px;">START YOUR OWN LIST</a>
+    </div>
+    
+    <div class="d-flex gap-4 mb-4 border-bottom text-uppercase fw-bold pb-2" style="font-size: 0.75rem; letter-spacing: 1px; border-color: #2C3440 !important;">
+        <a href="#" class="text-decoration-none hover-white" style="color: #678;">POPULAR THIS WEEK</a>
+        <a href="#" class="text-decoration-none hover-white" style="color: #678;">ALL-TIME</a>
+        <a href="#" class="text-white text-decoration-none" style="border-bottom: 2px solid #00E054; padding-bottom: 3px;">FEATURED</a>
+        <a href="#" class="text-decoration-none hover-white" style="color: #678;">RECENT</a>
+        <a href="#" class="text-decoration-none hover-white" style="color: #678;">TAGS</a>
+    </div>
+    
+    <div class="mt-4 mb-3 border-bottom pb-2" style="border-color: #2C3440 !important;">
+        <span class="text-secondary text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 1px; color: #8AA8B9 !important;">Letterboxd Community</span>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <!-- List 1 -->
+        <div class="col-md-4">
+            <div class="featured-list-card">
+                <div class="list-posters position-relative mb-2" style="height: 150px; overflow: hidden; border-radius: 4px;">
+                    {% for m in top_rated[:5] %}
+                        {% if m.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w154{{ m.poster_path }}" style="width: 20%; height: 100%; object-fit: cover; position: absolute; left: {{ loop.index0 * 20 }}%; z-index: {{ 5 - loop.index0 }}; border-right: 1px solid #14181C;">
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <h5 class="text-white fw-bold mb-1" style="font-size: 1.05rem; font-family: 'Georgia', serif;">The Official Top 250 Narrative Feature Films</h5>
+                <div class="d-flex align-items-center gap-2" style="font-size: 0.8rem;">
+                    <span class="text-white fw-bold"><i class="bi bi-person-circle text-secondary me-1"></i>Official Lists</span>
+                    <span class="text-secondary"><i class="bi bi-heart-fill ms-2 me-1" style="color: #678;"></i>324K</span>
+                    <span class="text-secondary"><i class="bi bi-chat-fill ms-2 me-1" style="color: #678;"></i>5.2K</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- List 2 -->
+        <div class="col-md-4">
+            <div class="featured-list-card">
+                <div class="list-posters position-relative mb-2" style="height: 150px; overflow: hidden; border-radius: 4px;">
+                    {% for m in popular[:5] %}
+                        {% if m.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w154{{ m.poster_path }}" style="width: 20%; height: 100%; object-fit: cover; position: absolute; left: {{ loop.index0 * 20 }}%; z-index: {{ 5 - loop.index0 }}; border-right: 1px solid #14181C;">
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <h5 class="text-white fw-bold mb-1" style="font-size: 1.05rem; font-family: 'Georgia', serif;">The Official Top 250 Documentaries</h5>
+                <div class="d-flex align-items-center gap-2" style="font-size: 0.8rem;">
+                    <span class="text-white fw-bold"><i class="bi bi-person-circle text-secondary me-1"></i>Official Lists</span>
+                    <span class="text-secondary"><i class="bi bi-heart-fill ms-2 me-1" style="color: #678;"></i>120K</span>
+                    <span class="text-secondary"><i class="bi bi-chat-fill ms-2 me-1" style="color: #678;"></i>1.1K</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- List 3 -->
+        <div class="col-md-4">
+            <div class="featured-list-card">
+                <div class="list-posters position-relative mb-2" style="height: 150px; overflow: hidden; border-radius: 4px;">
+                    {% for m in now_playing[:5] %}
+                        {% if m.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w154{{ m.poster_path }}" style="width: 20%; height: 100%; object-fit: cover; position: absolute; left: {{ loop.index0 * 20 }}%; z-index: {{ 5 - loop.index0 }}; border-right: 1px solid #14181C;">
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <h5 class="text-white fw-bold mb-1" style="font-size: 1.05rem; font-family: 'Georgia', serif;">The Official Top 250 Mini-Series</h5>
+                <div class="d-flex align-items-center gap-2" style="font-size: 0.8rem;">
+                    <span class="text-white fw-bold"><i class="bi bi-person-circle text-secondary me-1"></i>Official Lists</span>
+                    <span class="text-secondary"><i class="bi bi-heart-fill ms-2 me-1" style="color: #678;"></i>85K</span>
+                    <span class="text-secondary"><i class="bi bi-chat-fill ms-2 me-1" style="color: #678;"></i>800</span>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="movie-grid">
+            {% for movie in top_rated %}
+            <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+                <div class="movie-card">
+                    <div class="poster-wrapper">
+                        {% if movie.poster_path %}
+                        <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                        {% else %}
+                        <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                        {% endif %}
+                        <span class="rating-badge"><i class="bi bi-star-fill"></i> {{ '%.1f'|format(movie.vote_average|default(0)) }}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title">{{ movie.title }}</div>
+                        <div class="card-year">{{ movie.release_date[:4] if movie.release_date else '' }}</div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Movie Ad Banner 2 -->
+    {% if trending and trending|length > 1 %}
+    {% set list_ad2 = trending[0] %}
+    <div class="movie-ad-banner alt mb-4">
+        <div class="ad-backdrop">
+            {% if list_ad2.backdrop_path %}
+            <img src="{{ list_ad2.backdrop_path|backdrop_url }}" alt="{{ list_ad2.title }}">
+            {% endif %}
+        </div>
+        <div class="ad-overlay"></div>
+        <div class="ad-content">
+            <div class="ad-label"><i class="bi bi-fire"></i> TRENDING NOW</div>
+            <h3 class="ad-title">{{ list_ad2.title }}</h3>
+            <p class="ad-desc">{{ list_ad2.overview[:120] if list_ad2.overview else '' }}{% if list_ad2.overview|length > 120 %}…{% endif %}</p>
+            <div class="ad-actions">
+                <a href="{{ url_for('main.movie_detail', movie_id=list_ad2.id) }}" class="btn btn-cinescope btn-sm"><i class="bi bi-play-fill"></i> Watch Now</a>
+                <span class="ad-rating"><i class="bi bi-star-fill"></i> {{ '%.1f'|format(list_ad2.vote_average|default(0)) }}</span>
+            </div>
+        </div>
+        <span class="ad-tag">AD</span>
+    </div>
+    {% endif %}
+
+    <!-- Trending This Week -->
+    {% if trending %}
+    <div class="list-section">
+        <div class="list-header">
+            <div class="list-poster-stack">
+                {% for m in trending[:4] %}
+                {% if m.poster_path %}
+                <img src="https://image.tmdb.org/t/p/w92{{ m.poster_path }}" alt="{{ m.title }}" class="stack-poster" style="left: {{ loop.index0 * 35 }}px; z-index: {{ 10 - loop.index0 }};">
+                {% endif %}
+                {% endfor %}
+            </div>
+            <div class="list-info">
+                <h3 class="list-title">Trending This Week</h3>
+                <p class="list-meta">{{ trending|length }} films · <i class="bi bi-fire" style="color: var(--orange);"></i> What everyone's watching right now</p>
+            </div>
+        </div>
+        <div class="movie-grid">
+            {% for movie in trending %}
+            <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+                <div class="movie-card">
+                    <div class="poster-wrapper">
+                        {% if movie.poster_path %}
+                        <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                        {% else %}
+                        <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                        {% endif %}
+                        <span class="rating-badge"><i class="bi bi-star-fill"></i> {{ '%.1f'|format(movie.vote_average|default(0)) }}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title">{{ movie.title }}</div>
+                        <div class="card-year">{{ movie.release_date[:4] if movie.release_date else '' }}</div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Now in Theaters -->
+    {% if now_playing %}
+    <div class="list-section">
+        <div class="list-header">
+            <div class="list-poster-stack">
+                {% for m in now_playing[:4] %}
+                {% if m.poster_path %}
+                <img src="https://image.tmdb.org/t/p/w92{{ m.poster_path }}" alt="{{ m.title }}" class="stack-poster" style="left: {{ loop.index0 * 35 }}px; z-index: {{ 10 - loop.index0 }};">
+                {% endif %}
+                {% endfor %}
+            </div>
+            <div class="list-info">
+                <h3 class="list-title">Now Playing in Theaters</h3>
+                <p class="list-meta">{{ now_playing|length }} films · <i class="bi bi-ticket-perforated" style="color: var(--pink);"></i> Currently in cinemas</p>
+            </div>
+        </div>
+        <div class="movie-grid">
+            {% for movie in now_playing %}
+            <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+                <div class="movie-card">
+                    <div class="poster-wrapper">
+                        {% if movie.poster_path %}
+                        <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                        {% else %}
+                        <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                        {% endif %}
+                        <span class="rating-badge"><i class="bi bi-star-fill"></i> {{ '%.1f'|format(movie.vote_average|default(0)) }}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title">{{ movie.title }}</div>
+                        <div class="card-year">{{ movie.release_date[:4] if movie.release_date else '' }}</div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Movie Ad Banner 3 -->
+    {% if now_playing and now_playing|length > 2 %}
+    {% set list_ad3 = now_playing[1] %}
+    <div class="movie-ad-banner dark mb-4">
+        <div class="ad-backdrop">
+            {% if list_ad3.backdrop_path %}
+            <img src="{{ list_ad3.backdrop_path|backdrop_url }}" alt="{{ list_ad3.title }}">
+            {% endif %}
+        </div>
+        <div class="ad-overlay"></div>
+        <div class="ad-content">
+            <div class="ad-label"><i class="bi bi-ticket-perforated-fill"></i> IN CINEMAS</div>
+            <h3 class="ad-title">{{ list_ad3.title }}</h3>
+            <p class="ad-desc">{{ list_ad3.overview[:120] if list_ad3.overview else '' }}{% if list_ad3.overview|length > 120 %}…{% endif %}</p>
+            <div class="ad-actions">
+                <a href="{{ url_for('main.movie_detail', movie_id=list_ad3.id) }}" class="btn btn-cinescope btn-sm"><i class="bi bi-info-circle"></i> Learn More</a>
+                <span class="ad-rating"><i class="bi bi-star-fill"></i> {{ '%.1f'|format(list_ad3.vote_average|default(0)) }}</span>
+            </div>
+        </div>
+        <span class="ad-tag">AD</span>
+    </div>
+    {% endif %}
+
+    <!-- Upcoming -->
+    {% if upcoming %}
+    <div class="list-section">
+        <div class="list-header">
+            <div class="list-poster-stack">
+                {% for m in upcoming[:4] %}
+                {% if m.poster_path %}
+                <img src="https://image.tmdb.org/t/p/w92{{ m.poster_path }}" alt="{{ m.title }}" class="stack-poster" style="left: {{ loop.index0 * 35 }}px; z-index: {{ 10 - loop.index0 }};">
+                {% endif %}
+                {% endfor %}
+            </div>
+            <div class="list-info">
+                <h3 class="list-title">Coming Soon</h3>
+                <p class="list-meta">{{ upcoming|length }} films · <i class="bi bi-calendar-event" style="color: var(--blue);"></i> Upcoming releases</p>
+            </div>
+        </div>
+        <div class="movie-grid">
+            {% for movie in upcoming %}
+            <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+                <div class="movie-card">
+                    <div class="poster-wrapper">
+                        {% if movie.poster_path %}
+                        <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                        {% else %}
+                        <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                        {% endif %}
+                        <span class="rating-badge"><i class="bi bi-star-fill"></i> {{ '%.1f'|format(movie.vote_average|default(0)) }}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title">{{ movie.title }}</div>
+                        <div class="card-year">{{ movie.release_date[:4] if movie.release_date else '' }}</div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

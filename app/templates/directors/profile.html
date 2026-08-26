@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}{{ director.name }} — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Director Header -->
+    <div class="row align-items-center mb-4 fade-in">
+        <div class="col-auto">
+            {% if director.profile_path %}
+            <img src="https://image.tmdb.org/t/p/w300{{ director.profile_path }}" alt="{{ director.name }}"
+                 style="width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border-hover); box-shadow: 0 8px 30px rgba(0,0,0,0.4);">
+            {% else %}
+            <div style="width: 140px; height: 140px; border-radius: 50%; background: var(--bg-input); display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-person-fill" style="font-size: 3.5rem; color: var(--text-muted);"></i>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col">
+            <h1 style="font-weight: 800; font-size: 2rem; margin-bottom: 0.3rem;">{{ director.name }}</h1>
+            <div class="d-flex flex-wrap gap-3 mb-2" style="font-size: 0.82rem; color: var(--text-muted);">
+                {% if director.birthday %}
+                <span><i class="bi bi-calendar3 me-1"></i> {{ director.birthday }}</span>
+                {% endif %}
+                {% if director.place_of_birth %}
+                <span><i class="bi bi-geo-alt me-1"></i> {{ director.place_of_birth }}</span>
+                {% endif %}
+                {% if director.deathday %}
+                <span><i class="bi bi-dash-circle me-1"></i> Died: {{ director.deathday }}</span>
+                {% endif %}
+            </div>
+            {% if director.biography %}
+            <p style="color: var(--text-secondary); font-size: 0.88rem; max-width: 650px; line-height: 1.7;">
+                {{ director.biography[:400] }}{% if director.biography|length > 400 %}...{% endif %}
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-6">
+            <div class="stat-card">
+                <div class="stat-value">{{ total_movies }}</div>
+                <div class="stat-label">Films Directed</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6">
+            <div class="stat-card">
+                <div class="stat-value">{{ avg_rating }}</div>
+                <div class="stat-label">Avg. Rating</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-12">
+            <div class="stat-card">
+                <div class="stat-value" style="font-size: 1rem;">
+                    {% if movies %}{{ movies[0].release_date[:4] if movies[0].release_date else '—' }}{% else %}—{% endif %}
+                    –
+                    {% if movies %}{{ movies[-1].release_date[:4] if movies[-1].release_date else '—' }}{% else %}—{% endif %}
+                </div>
+                <div class="stat-label">Career Span</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    {% if charts %}
+    <div class="row g-4 mb-4">
+        {% if charts.ratings_chart %}
+        <div class="col-lg-12">
+            <div class="chart-container">{{ charts.ratings_chart|safe }}</div>
+        </div>
+        {% endif %}
+        {% if charts.revenue_chart %}
+        <div class="col-lg-6">
+            <div class="chart-container">{{ charts.revenue_chart|safe }}</div>
+        </div>
+        {% endif %}
+        {% if charts.genres_chart %}
+        <div class="col-lg-6">
+            <div class="chart-container">{{ charts.genres_chart|safe }}</div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Complete Filmography -->
+    {% if movies %}
+    <div class="section-header">
+        <h2 class="section-title"><span class="icon"><i class="bi bi-collection-play"></i></span> Complete Filmography ({{ movies|length }})</h2>
+    </div>
+    <div class="movie-grid large-posters">
+        {% for movie in movies %}
+        <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+            <div class="movie-card">
+                <div class="poster-wrapper">
+                    {% if movie.poster_path %}
+                    <img src="https://image.tmdb.org/t/p/w342{{ movie.poster_path }}" alt="{{ movie.title }}" loading="lazy">
+                    {% else %}
+                    <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                    {% endif %}
+                    {% if movie.vote_average %}
+                    <span class="rating-badge"><i class="bi bi-star-fill"></i> {{ '%.1f'|format(movie.vote_average) }}</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="card-title">{{ movie.title }}</div>
+                    <div class="card-year">{{ movie.release_date[:4] if movie.release_date else '' }}</div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="d-flex gap-2 justify-content-center mt-4">
+        <a href="{{ url_for('directors.compare') }}?dir1={{ director.id }}" class="btn btn-outline-cinescope">
+            <i class="bi bi-people me-1"></i> Compare with Another Director
+        </a>
+        <a href="{{ url_for('directors.index') }}" class="btn btn-ghost">
+            <i class="bi bi-arrow-left me-1"></i> All Directors
+        </a>
+    </div>
+</div>
+{% endblock %}

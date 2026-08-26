@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Studio Films — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="section-title mb-0" style="font-size: 1.5rem; text-transform: none; color: #fff;">Studio Films</h2>
+        <span class="badge" style="background-color: #2C3440; color: #8AA8B9; font-weight: normal; font-size: 13px;">{{ total_results }} films</span>
+    </div>
+
+    <!-- Films Grid -->
+    <div class="movie-grid mb-5">
+        {% for movie in movies %}
+        <div class="movie-card position-relative hover-card">
+            <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none d-block">
+                <div class="poster-wrapper">
+                    {% if movie.poster_path %}
+                    <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                    {% else %}
+                    <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                    {% endif %}
+                    
+                    {% if movie.vote_average %}
+                    <span class="rating-badge"><i class="bi bi-star-fill"></i> {{ "%.1f"|format(movie.vote_average) }}</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="card-title">{{ movie.title }}</div>
+                    {% if movie.release_date %}
+                    <div class="card-year">{{ movie.release_date[:4] }}</div>
+                    {% endif %}
+                </div>
+            </a>
+            
+            {% if current_user.is_authenticated %}
+            <!-- Quick Actions -->
+            <div class="quick-actions" style="position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s;">
+                <form action="{{ url_for('watchlist.add_watchlist', movie_id=movie.id) }}" method="POST" style="margin: 0;">
+                    <button type="submit" class="btn btn-sm" style="background: rgba(0,0,0,0.7); color: #fff; padding: 4px 8px; border-radius: 4px; border: 1px solid #445566;" title="Add to Watchlist">
+                        <i class="bi bi-clock"></i>
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="text-center py-5 col-12" style="grid-column: 1 / -1;">
+            <i class="bi bi-camera-reels" style="font-size: 3rem; color: #445566;"></i>
+            <p style="color: #678; margin-top: 15px;">No films found for this studio.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <div class="d-flex justify-content-center align-items-center gap-3">
+        {% if current_page > 1 %}
+        <a href="{{ url_for('main.studio', company_id=company_id, page=current_page-1) }}" class="btn btn-outline-secondary btn-sm" style="border-color: #445566; color: #8AA8B9;">Previous</a>
+        {% endif %}
+        
+        <span style="color: #678; font-size: 13px;">Page {{ current_page }} of {{ total_pages }}</span>
+        
+        {% if current_page < total_pages %}
+        <a href="{{ url_for('main.studio', company_id=company_id, page=current_page+1) }}" class="btn btn-outline-secondary btn-sm" style="border-color: #445566; color: #8AA8B9;">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .movie-card:hover .quick-actions {
+        opacity: 1 !important;
+    }
+</style>
+{% endblock %}

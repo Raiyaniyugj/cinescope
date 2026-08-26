@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Members — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Members Header -->
+    <div class="d-flex justify-content-between align-items-end mb-3 border-bottom pb-2" style="border-color: #2C3440 !important;">
+        <h2 class="fw-normal mb-0 text-white" style="font-size: 1.8rem; font-family: 'Georgia', serif;">Members</h2>
+        
+        <form class="d-flex position-relative" action="{{ url_for('members.index') }}" method="GET">
+            <input type="text" name="q" value="{{ query }}" class="form-control form-control-sm border-0 shadow-none text-white" placeholder="Find a member…" style="background: #2C3440; width: 220px; font-size: 0.8rem; padding: 0.3rem 0.6rem; border-radius: 3px;">
+            <button type="submit" class="btn btn-sm position-absolute end-0 top-0 h-100 border-0" style="color: #678;"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+    
+    <div class="d-flex gap-4 mb-4 text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">
+        <a href="#" class="text-white text-decoration-none" style="border-bottom: 2px solid #00E054; padding-bottom: 3px;">POPULAR THIS WEEK</a>
+        <a href="#" class="text-decoration-none hover-white" style="color: #678;">ALL-TIME</a>
+        <a href="#" class="text-decoration-none hover-white" style="color: #678;">HQ</a>
+        <a href="#" class="text-decoration-none hover-white" style="color: #678;">CREW</a>
+        <a href="#" class="text-decoration-none hover-white" style="color: #678;">PRO</a>
+        <a href="#" class="text-decoration-none hover-white" style="color: #678;">PATRON</a>
+    </div>
+
+    <!-- Members List -->
+    <div class="row g-4 mb-5">
+        {% for u in users %}
+        <div class="col-md-6">
+            <div class="member-card d-flex gap-3" style="background: #14181C; border-radius: 3px; border-bottom: 1px solid #2C3440; padding: 1rem 0;">
+                <div class="d-flex flex-column align-items-center" style="width: 120px;">
+                    <a href="{{ url_for('auth.profile', username=u.username) }}" class="text-decoration-none">
+                        <div class="profile-avatar-large mx-auto mb-2" style="width: 72px; height: 72px; font-size: 1.8rem; border-radius: 50%; background-color: #2C3440; display: flex; align-items: center; justify-content: center; color: #fff; {% if u.avatar_url %}background-image: url('{{ u.avatar_url }}'); background-size: cover; color: transparent;{% endif %}">
+                            {{ u.username[0]|upper }}
+                        </div>
+                    </a>
+                    {% if current_user.is_authenticated and u != current_user %}
+                        {% if current_user.is_following(u) %}
+                            <form action="{{ url_for('auth.unfollow', username=u.username) }}" method="POST" class="w-100">
+                                <button type="submit" class="btn btn-ghost w-100" style="font-size: 0.65rem; padding: 0.2rem; background: #2C3440; color: #fff;">FOLLOWING</button>
+                            </form>
+                        {% else %}
+                            <form action="{{ url_for('auth.follow', username=u.username) }}" method="POST" class="w-100">
+                                <button type="submit" class="btn w-100 fw-bold" style="font-size: 0.65rem; padding: 0.2rem; background: #40bcf4; color: #fff;">FOLLOW</button>
+                            </form>
+                        {% endif %}
+                    {% elif not current_user.is_authenticated %}
+                        <a href="{{ url_for('auth.login') }}" class="btn w-100 fw-bold" style="font-size: 0.65rem; padding: 0.2rem; background: #40bcf4; color: #fff;">FOLLOW</a>
+                    {% endif %}
+                </div>
+                
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-baseline mb-2">
+                        <a href="{{ url_for('auth.profile', username=u.username) }}" class="text-decoration-none text-white">
+                            <h5 class="mb-0 fw-bold d-inline-block" style="font-family: 'Georgia', serif;">{{ u.given_name or u.username }}</h5>
+                            <span class="ms-1" style="color: #678; font-size: 0.9rem;">{{ u.username }}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="d-flex gap-3 mb-3" style="font-size: 0.8rem; color: #678; font-weight: 600; text-transform: uppercase;">
+                        <span><span class="text-white">{{ u.watched_items|length }}</span> Films</span>
+                        <span><span class="text-white">{{ u.followers.count() }}</span> Followers</span>
+                    </div>
+                    
+                    <div class="d-flex gap-1">
+                        {% set favs = u.favorites %}
+                        {% set fav_dict = {} %}
+                        {% for f in favs %}
+                            {% set _ = fav_dict.update({f.order: f}) %}
+                        {% endfor %}
+                        
+                        {% for i in range(1, 5) %}
+                            <div style="flex: 1; aspect-ratio: 2/3; background: #2C3440; border-radius: 3px; overflow: hidden; border: 1px solid #14181C;">
+                                {% if i in fav_dict %}
+                                    <img src="https://image.tmdb.org/t/p/w92{{ fav_dict[i].poster_path }}" alt="{{ fav_dict[i].title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <p style="color: #678; font-size: 0.88rem;">No members found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

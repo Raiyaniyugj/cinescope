@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Diary — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4" style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+        <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; margin: 0;">Diary</h3>
+    </div>
+
+    {% if grouped %}
+        {% for month, items in grouped.items() %}
+        <div class="mb-4">
+            <h5 style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.5rem; font-weight: 600;">{{ month }}</h5>
+            
+            {% for item in items %}
+            <div class="diary-row">
+                <div class="diary-date">
+                    <div style="font-size: 0.55rem; text-transform: uppercase;">{{ item.watched_at.strftime('%b') if item.watched_at else '' }}</div>
+                    <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">{{ item.watched_at.strftime('%d') if item.watched_at else '' }}</div>
+                </div>
+                <a href="{{ url_for('main.movie_detail', movie_id=item.tmdb_id) }}">
+                    <img src="{{ item.poster_path|poster_url('w92') }}" class="diary-poster" alt="{{ item.title }}">
+                </a>
+                <div class="diary-info">
+                    <div class="diary-title">
+                        <a href="{{ url_for('main.movie_detail', movie_id=item.tmdb_id) }}" class="text-decoration-none" style="color: var(--text-primary);">{{ item.title }}</a>
+                        <span style="color: var(--text-muted); font-weight: 400; margin-left: 4px;">{{ item.release_date[:4] if item.release_date else '' }}</span>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center mt-1">
+                        {% if item.rating %}
+                        <span class="diary-rating">
+                            {% for s in range((item.rating * 2)|int) %}
+                                {% if loop.index % 2 == 1 %}<i class="bi bi-star-fill" style="font-size: 0.65rem;"></i>{% endif %}
+                            {% endfor %}
+                        </span>
+                        {% endif %}
+                        {% if item.is_favorite %}
+                        <span style="color: var(--red); font-size: 0.7rem;"><i class="bi bi-heart-fill"></i></span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if item.review %}
+                <div style="color: var(--text-muted); font-size: 0.75rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    "{{ item.review[:60] }}{% if item.review|length > 60 %}...{% endif %}"
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-journal" style="font-size: 2.5rem; color: var(--text-muted);"></i>
+        <p style="color: var(--text-muted); margin-top: 0.75rem; font-size: 0.88rem;">Your diary is empty. Start logging films!</p>
+        <button class="btn btn-cinescope mt-2" data-bs-toggle="modal" data-bs-target="#globalLogModal">+ LOG A FILM</button>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

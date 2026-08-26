@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}{{ person.name }} — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            {% if person.profile_path %}
+            <img src="https://image.tmdb.org/t/p/w500{{ person.profile_path }}" alt="{{ person.name }}" class="img-fluid rounded mb-3 shadow">
+            {% else %}
+            <div class="rounded mb-3 d-flex align-items-center justify-content-center" style="background: var(--bg-surface); height: 350px;">
+                <i class="bi bi-person text-muted" style="font-size: 5rem;"></i>
+            </div>
+            {% endif %}
+            
+            <h4 class="mb-3">Personal Info</h4>
+            {% if person.birthday %}
+            <p class="mb-1"><strong class="text-muted">Born</strong><br>{{ person.birthday }}</p>
+            {% endif %}
+            {% if person.place_of_birth %}
+            <p class="mb-1"><strong class="text-muted">Place of Birth</strong><br>{{ person.place_of_birth }}</p>
+            {% endif %}
+            {% if person.known_for_department %}
+            <p class="mb-1"><strong class="text-muted">Known For</strong><br>{{ person.known_for_department }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <h1 class="mb-3">{{ person.name }}</h1>
+            
+            {% if person.biography %}
+            <h4 class="mb-2">Biography</h4>
+            <p style="white-space: pre-line; color: var(--text-secondary);">{{ person.biography }}</p>
+            {% endif %}
+
+            <h4 class="mt-5 mb-3">Filmography</h4>
+            {% if person.movie_credits %}
+                {% set credits = person.movie_credits.cast if person.known_for_department == 'Acting' else person.movie_credits.crew %}
+                {% if credits %}
+                <div class="movie-grid">
+                    {% for m in credits %}
+                    {% if m.poster_path %}
+                    <a href="{{ url_for('main.movie_detail', movie_id=m.id) }}" class="text-decoration-none">
+                        <div class="movie-card">
+                            <div class="poster-wrapper">
+                                <img src="https://image.tmdb.org/t/p/w342{{ m.poster_path }}" alt="{{ m.title }}" loading="lazy">
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">{{ m.title }}</div>
+                                <div class="card-year">{{ m.release_date[:4] if m.release_date else '' }}</div>
+                            </div>
+                        </div>
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>No filmography found.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

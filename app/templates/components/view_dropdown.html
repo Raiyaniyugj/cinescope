@@ -1,0 +1,58 @@
+<div class="dropdown">
+    <a href="#" class="text-decoration-none d-flex align-items-center gap-1 hover-white"
+        data-bs-toggle="dropdown"
+        style="color: #8AA8B9;"><i class="bi bi-eye-fill"></i> <i class="bi bi-chevron-down"
+            style="font-size: 0.6rem;"></i></a>
+            
+    <ul class="dropdown-menu dropdown-menu-dark p-0 view-filters-dropdown" style="background-color: #7b8f9e; border: 1px solid #2C3440; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 0.85rem; min-width: 240px; text-transform: none; font-weight: normal; letter-spacing: 0;">
+        
+        <!-- Toggle section -->
+        <div style="background-color: #8da1b0; padding: 0.5rem 0; border-top-left-radius: 4px; border-top-right-radius: 4px; border-bottom: 1px solid rgba(0,0,0,0.1);">
+            <li class="px-3 py-1">
+                <div class="form-check form-switch d-flex align-items-center m-0">
+                    <input class="form-check-input filter-toggle" type="checkbox" id="fadeWatchedToggle" data-filter-type="fade-watched" style="margin-top: 0; margin-right: 10px; cursor: pointer;">
+                    <label class="form-check-label text-dark" for="fadeWatchedToggle" style="cursor: pointer; padding-top: 2px;">Fade watched films</label>
+                </div>
+            </li>
+        </div>
+
+        <!-- Account Filters -->
+        <li style="border-bottom: 1px solid rgba(0,0,0,0.1);"><h6 class="dropdown-header" style="color: #4a5a6a; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold; margin: 0; padding: 0.5rem 1rem 0.2rem 1rem;">Account Filters</h6></li>
+        
+        <li class="px-0 py-1" style="border-bottom: 1px solid rgba(0,0,0,0.1);">
+            <a href="#" class="dropdown-item filter-action" data-filter-action="show-watched" style="color: #2c3a47; padding: 0.2rem 1rem;">Show watched films</a>
+            <a href="#" class="dropdown-item filter-action" data-filter-action="hide-watched" style="color: #2c3a47; padding: 0.2rem 1rem;">Hide watched films</a>
+        </li>
+        
+        <li class="px-0 py-1" style="border-bottom: 1px solid rgba(0,0,0,0.1);">
+            <a href="#" class="dropdown-item filter-action" data-filter-action="show-watchlist" style="color: #2c3a47; padding: 0.2rem 1rem;">Show films in watchlist</a>
+            <a href="#" class="dropdown-item filter-action" data-filter-action="hide-watchlist" style="color: #2c3a47; padding: 0.2rem 1rem;">Hide films in watchlist</a>
+        </li>
+        
+        <!-- Content Filters -->
+        <li><h6 class="dropdown-header" style="color: #4a5a6a; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold; margin: 0; padding: 0.5rem 1rem 0.2rem 1rem;">Content Filters</h6></li>
+        
+        <li class="px-0 py-1">
+            <a href="#" class="dropdown-item filter-action" data-filter-action="show-doc" style="color: #2c3a47; padding: 0.2rem 1rem;">Show documentaries</a>
+            <a href="#" class="dropdown-item filter-action" data-filter-action="hide-doc" style="color: #2c3a47; padding: 0.2rem 1rem;">Hide documentaries</a>
+        </li>
+        <li class="pb-2"></li>
+    </ul>
+</div>
+
+<style>
+/* Reset dropdown hover for this specific menu to match Letterboxd's light blue menu */
+.view-filters-dropdown .dropdown-item:hover {
+    background-color: rgba(0,0,0,0.05);
+    color: #14181C !important;
+}
+.view-filters-dropdown .form-check-input:checked {
+    background-color: #00e054;
+    border-color: #00e054;
+}
+.view-filters-dropdown .filter-action.active-filter {
+    font-weight: bold;
+    color: #14181C !important;
+    position: relative;
+}
+</style>

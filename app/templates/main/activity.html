@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Activity — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4" style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+                <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; margin: 0;">Activity</h3>
+            </div>
+
+            {% if activity_items %}
+                {% for entry in activity_items %}
+                <div class="activity-entry">
+                    <a href="{{ url_for('auth.profile', username=entry.user.username) }}">
+                        <div class="activity-avatar">{{ entry.user.username[0]|upper }}</div>
+                    </a>
+                    <div class="activity-content">
+                        <div class="activity-text">
+                            <strong><a href="{{ url_for('auth.profile', username=entry.user.username) }}" class="text-decoration-none" style="color: var(--text-primary);">{{ entry.user.username }}</a></strong>
+                            {% if entry.item.review %}
+                                reviewed
+                            {% elif entry.item.rating %}
+                                rated
+                            {% else %}
+                                watched
+                            {% endif %}
+                            <a href="{{ url_for('main.movie_detail', movie_id=entry.item.tmdb_id) }}" class="film-link text-decoration-none">{{ entry.item.title }}</a>
+                            <span style="color: var(--text-muted);">{{ entry.item.release_date[:4] if entry.item.release_date else '' }}</span>
+                            {% if entry.item.rating %}
+                            <span style="color: var(--accent); font-weight: 700; margin-left: 4px;">
+                                {% for s in range((entry.item.rating * 2)|int) %}{% if loop.index % 2 == 1 %}★{% endif %}{% endfor %}
+                            </span>
+                            {% endif %}
+                            {% if entry.item.is_favorite %}
+                            <span style="color: var(--red); margin-left: 2px;"><i class="bi bi-heart-fill"></i></span>
+                            {% endif %}
+                        </div>
+                        {% if entry.item.review %}
+                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.3rem; line-height: 1.5;">
+                            {{ entry.item.review[:200] }}{% if entry.item.review|length > 200 %}...{% endif %}
+                        </div>
+                        {% endif %}
+                        <div class="activity-time">{{ entry.item.watched_at.strftime('%b %d, %Y') if entry.item.watched_at else '' }}</div>
+                    </div>
+                    <a href="{{ url_for('main.movie_detail', movie_id=entry.item.tmdb_id) }}" style="flex-shrink: 0;">
+                        <img src="{{ entry.item.poster_path|poster_url('w92') }}" style="width: 35px; height: 52px; object-fit: cover; border-radius: 2px;">
+                    </a>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-activity" style="font-size: 2.5rem; color: var(--text-muted);"></i>
+                <p style="color: var(--text-muted); margin-top: 0.75rem; font-size: 0.88rem;">No activity yet. Follow some members to see their activity here!</p>
+                <a href="{{ url_for('members.index') }}" class="btn btn-cinescope mt-2">Find Members</a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <h6 style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.6rem;">Quick Links</h6>
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem;">
+                <a href="{{ url_for('watchlist.diary') }}" class="d-block text-decoration-none mb-2" style="color: var(--text-secondary); font-size: 0.82rem;"><i class="bi bi-journal me-2"></i> Your Diary</a>
+                <a href="{{ url_for('watchlist.index') }}" class="d-block text-decoration-none mb-2" style="color: var(--text-secondary); font-size: 0.82rem;"><i class="bi bi-bookmark me-2"></i> Your Watchlist</a>
+                <a href="{{ url_for('lists.index') }}" class="d-block text-decoration-none mb-2" style="color: var(--text-secondary); font-size: 0.82rem;"><i class="bi bi-list-ul me-2"></i> Your Lists</a>
+                <a href="{{ url_for('members.index') }}" class="d-block text-decoration-none" style="color: var(--text-secondary); font-size: 0.82rem;"><i class="bi bi-people me-2"></i> Find Members</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

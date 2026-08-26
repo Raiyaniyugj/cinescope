@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard — CineScope{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="section-title mb-1">Your Dashboard</h2>
+    <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 1.5rem;">Personal stats from your watched films.</p>
+
+    {% if data and data.stats %}
+    <div class="row g-3 mb-4">
+        <div class="col-md col-6">
+            <div class="stat-card">
+                <div class="stat-value">{{ data.stats.total_watched }}</div>
+                <div class="stat-label">Films Watched</div>
+            </div>
+        </div>
+        <div class="col-md col-6">
+            <div class="stat-card">
+                <div class="stat-value">{{ data.stats.avg_rating }}</div>
+                <div class="stat-label">Avg Rating</div>
+            </div>
+        </div>
+        <div class="col-md col-6">
+            <div class="stat-card">
+                <div class="stat-value" style="font-size: 1.1rem;">{{ data.stats.top_genre }}</div>
+                <div class="stat-label">Top Genre</div>
+            </div>
+        </div>
+        <div class="col-md col-6">
+            <div class="stat-card">
+                <div class="stat-value" style="font-size: 1rem;">{{ data.stats.top_director }}</div>
+                <div class="stat-label">Top Director</div>
+            </div>
+        </div>
+        <div class="col-md col-6">
+            <div class="stat-card">
+                <div class="stat-value">{{ data.stats.top_decade }}</div>
+                <div class="stat-label">Top Decade</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% if data.genres_chart %}
+        <div class="col-lg-6"><div class="chart-container">{{ data.genres_chart|safe }}</div></div>
+        {% endif %}
+        {% if data.dirs_chart %}
+        <div class="col-lg-6"><div class="chart-container">{{ data.dirs_chart|safe }}</div></div>
+        {% endif %}
+        {% if data.decades_chart %}
+        <div class="col-lg-6"><div class="chart-container">{{ data.decades_chart|safe }}</div></div>
+        {% endif %}
+        {% if data.ratings_chart %}
+        <div class="col-lg-6"><div class="chart-container">{{ data.ratings_chart|safe }}</div></div>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <div style="padding: 3rem 0; text-align: center; color: var(--text-muted);">
+        <p>Watch and rate some films to see your stats here.</p>
+        <a href="{{ url_for('main.index') }}" class="btn btn-cinescope mt-2">Browse Films</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
