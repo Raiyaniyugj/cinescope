@@ -1862,5 +1862,181 @@ img {
     border-radius: var(--radius);
     border: 1px solid var(--border);
     font-size: 0.8rem;
-}. h o v e r - c a r d   {   t r a n s i t i o n :   b a c k g r o u n d - c o l o r   0 . 2 s   e a s e ,   t r a n s f o r m   0 . 2 s   e a s e ;   b o r d e r - r a d i u s :   8 p x ;   p a d d i n g :   0 . 5 r e m ;   m a r g i n :   - 0 . 5 r e m ;   m a r g i n - b o t t o m :   0 . 5 r e m ;   }   . h o v e r - c a r d : h o v e r   {   b a c k g r o u n d - c o l o r :   r g b a ( 2 5 5 , 2 5 5 , 2 5 5 , 0 . 0 3 ) ;   }  
- 
+}
+
+.hover-card {
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin: -0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.hover-card:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* ============================================
+   RESPONSIVE MEDIA QUERIES (MOBILE & TABLET)
+   ============================================ */
+
+/* Tablet & Below (<992px) */
+@media (max-width: 991.98px) {
+    .movie-grid-10 {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.35rem;
+    }
+
+    .hero-featured {
+        min-height: 320px;
+    }
+
+    .hero-featured .hero-title {
+        font-size: 1.75rem;
+    }
+
+    .nav-search-form .form-control {
+        width: 100%;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .nav-search-form .form-control:focus {
+        width: 100%;
+    }
+
+    .navbar-cinescope .navbar-collapse {
+        background: var(--bg-card);
+        padding: 1rem;
+        border-radius: var(--radius-lg);
+        margin-top: 0.5rem;
+        border: 1px solid var(--border);
+    }
+}
+
+/* Mobile Screens (<768px) */
+@media (max-width: 767.98px) {
+    .movie-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.4rem;
+    }
+
+    .movie-grid.large-posters {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+
+    .movie-grid-10 {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.3rem;
+    }
+
+    /* Movie Detail Mobile Stack */
+    .movie-detail-hero {
+        height: 250px;
+    }
+
+    .movie-detail-content {
+        margin-top: -140px;
+    }
+
+    .detail-poster {
+        width: 140px;
+        margin: 0 auto 1rem auto;
+        display: block;
+    }
+
+    .detail-title {
+        font-size: 1.4rem;
+        text-align: center;
+    }
+
+    .detail-tagline {
+        text-align: center;
+    }
+
+    .detail-meta {
+        justify-content: center;
+    }
+
+    .detail-overview {
+        text-align: left;
+        font-size: 0.85rem;
+    }
+
+    .hero-featured {
+        min-height: 260px;
+    }
+
+    .hero-featured .hero-title {
+        font-size: 1.4rem;
+    }
+
+    .hero-featured .hero-desc {
+        font-size: 0.8rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .search-result-item {
+        gap: 0.75rem;
+    }
+
+    .search-result-img {
+        width: 55px;
+        height: 82px;
+    }
+
+    .search-result-title {
+        font-size: 1rem;
+    }
+
+    .action-panel-row {
+        gap: 0.2rem;
+    }
+
+    .action-panel-btn {
+        padding: 0.4rem 0.2rem;
+        font-size: 0.6rem;
+    }
+
+    /* Modal adjustments on mobile */
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    #logFormSection {
+        padding: 1rem !important;
+    }
+
+    #logMoviePoster {
+        width: 90px !important;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Small Mobile Screens (<480px) */
+@media (max-width: 479.98px) {
+    .movie-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.35rem;
+    }
+
+    .movie-grid-10 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .detail-poster {
+        width: 120px;
+    }
+
+    .btn-cinescope, .btn-outline-cinescope, .btn-ghost {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.7rem;
+    }
+
+    .section-title {
+        font-size: 0.75rem;
+    }
+}
