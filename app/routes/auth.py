@@ -278,3 +278,61 @@ def remove_favorite():
             return jsonify({'success': True})
     return jsonify({'success': False})
 
+@auth_bp.route('/firebase-login', methods=['POST'])
+def firebase_login():
+    import firebase_admin
+    from firebase_admin import auth
+    
+    id_token = request.json.get('idToken')
+    if not id_token:
+        return jsonify({'success': False, 'error': 'No token provided'}), 400
+        
+    try:
+        # Verify the Firebase ID token
+        decoded_token = auth.verify_id_token(id_token)
+        google_id = decoded_token.get('uid')
+        email = decoded_token.get('email')
+        name_str = decoded_token.get('name', '')
+        
+        name = name_str.split()
+        given_name = name[0] if name else ''
+        family_name = name[1] if len(name) > 1 else ''
+        
+        # 1. Try to find user by google_id
+        user = User.query.filter_by(google_id=google_id).first()
+        
+        # 2. Try to find user by email
+        if not user:
+            user = User.query.filter_by(email=email).first()
+            if user:
+                # Link existing account to Google
+                user.google_id = google_id
+                db.session.commit()
+                
+        # 3. Create new user
+        if not user:
+            username = email.split('@')[0]
+            # Ensure unique username
+            base_username = username
+            counter = 1
+            while User.query.filter_by(username=username).first():
+                username = f"{base_username}{counter}"
+                counter += 1
+                
+            user = User(
+                username=username,
+                email=email,
+                google_id=google_id,
+                given_name=given_name,
+                family_name=family_name
+            )
+            # password_hash is nullable now, so we can leave it empty
+            db.session.add(user)
+            db.session.commit()
+            
+        login_user(user, remember=True)
+        return jsonify({'success': True, 'redirect': url_for('main.index')})
+        
+    except Exception as e:
+        print(f"Firebase login error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 401

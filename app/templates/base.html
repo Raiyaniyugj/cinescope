@@ -317,5 +317,52 @@
     }
     </script>
     {% endif %}
+    <!-- Firebase Javascript SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+
+        // MOCK CONFIG: User needs to replace this with their actual config from the Firebase Console
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "cinescope1.firebaseapp.com",
+            projectId: "cinescope1",
+            storageBucket: "cinescope1.firebasestorage.app",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        window.signInWithGoogle = async function() {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const idToken = await result.user.getIdToken();
+                
+                // Send token to backend
+                const response = await fetch('/auth/firebase-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ idToken: idToken })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert('Login failed: ' + data.error);
+                }
+            } catch (error) {
+                console.error("Firebase Auth Error:", error);
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    alert('Error signing in with Google: ' + error.message);
+                }
+            }
+        }
+    </script>
 </body>
 </html>

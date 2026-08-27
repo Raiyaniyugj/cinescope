@@ -20,6 +20,13 @@ def create_app(config_class=Config):
     db.init_app(app)
     login_manager.init_app(app)
 
+    # Initialize Firebase Admin
+    import firebase_admin
+    from firebase_admin import credentials
+    if not firebase_admin._apps:
+        # We can initialize with just the projectId to verify ID tokens without a full service account key
+        firebase_admin.initialize_app(options={'projectId': 'cinescope1'})
+
     # Register Blueprints
     from app.routes.auth import auth_bp
     from app.routes.main import main_bp
