@@ -444,23 +444,23 @@ class TMDBService:
 
         return None
 
-    def get_trending_movies(self):
+    def get_trending_movies(self, page=1):
         """Browse trending movies of the week."""
         # 1. Try Live fetch
         if not self.is_demo_mode:
             url = f"{self.base_url}/trending/movie/week"
-            data = self._get_cached_or_fetch(url)
+            data = self._get_cached_or_fetch(url, params={"page": page})
             if data and 'results' in data:
                 return data['results']
 
         # 2. Fallback to Mock Data
         return [self._minify_movie(movie) for movie in MOCK_MOVIES.values()]
 
-    def get_popular_movies(self):
+    def get_popular_movies(self, page=1):
         """Browse popular movies."""
         if not self.is_demo_mode:
             url = f"{self.base_url}/movie/popular"
-            data = self._get_cached_or_fetch(url)
+            data = self._get_cached_or_fetch(url, params={"page": page})
             if data and 'results' in data:
                 return data['results']
 
@@ -645,11 +645,11 @@ class TMDBService:
 
 
 
-    def get_now_playing(self):
+    def get_now_playing(self, page=1):
         """Fetch movies currently playing in theaters."""
         if not self.is_demo_mode:
             url = f"{self.base_url}/movie/now_playing"
-            data = self._get_cached_or_fetch(url)
+            data = self._get_cached_or_fetch(url, params={"page": page})
             if data and 'results' in data:
                 return data['results']
         # Fallback

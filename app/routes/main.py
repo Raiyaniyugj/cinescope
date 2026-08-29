@@ -195,16 +195,17 @@ def api_search():
 
 @main_bp.route('/api/refresh/<string:section>')
 def refresh_section(section):
+    random_page = random.randint(1, 5)  # Get a random page of results for live refresh
     if section == 'trending':
-        movies = tmdb_service.get_trending_movies()
+        movies = tmdb_service.get_trending_movies(page=random_page)
         random.shuffle(movies)
         movies = movies[:8]
     elif section == 'popular':
-        movies = tmdb_service.get_popular_movies()
+        movies = tmdb_service.get_popular_movies(page=random_page)
         random.shuffle(movies)
         movies = movies[:8]
     elif section == 'now_playing':
-        movies = tmdb_service.get_now_playing()
+        movies = tmdb_service.get_now_playing(page=random_page)
         random.shuffle(movies)
         movies = movies[:8]
     elif section == 'recommendations':
