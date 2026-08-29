@@ -98,6 +98,29 @@
         {% endfor %}
     </div>
 
+    <!-- Animation -->
+    {% if animation %}
+    <div class="section-header mb-3">
+        <h2 class="section-title">Animation <button onclick="refreshSection('animation', 'grid-animation-in')" class="btn btn-sm btn-link text-decoration-none" style="color: #678;"><i class="bi bi-arrow-clockwise"></i></button></h2>
+        <a href="{{ url_for('main.films', genre=16) }}" class="section-link">MORE</a>
+    </div>
+    <div class="movie-grid large-posters mb-4" id="grid-animation-in" style="transition: opacity 0.3s;">
+        {% for movie in animation[:8] %}
+        <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+            <div class="movie-card">
+                <div class="poster-wrapper">
+                    {% if movie.poster_path %}
+                    <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
+                    {% else %}
+                    <div class="poster-placeholder"><i class="bi bi-film"></i></div>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- Recommendations -->
     {% if recommendations %}
     <div class="section-header mb-3">
@@ -171,31 +194,48 @@
         {% endfor %}
     </div>
     {% endif %}
-
-    <!-- Animation -->
-    {% if animation %}
-    <div class="section-header mb-3">
-        <h2 class="section-title">Animation <button onclick="refreshSection('animation', 'grid-animation-in')" class="btn btn-sm btn-link text-decoration-none" style="color: #678;"><i class="bi bi-arrow-clockwise"></i></button></h2>
-        <a href="{{ url_for('main.films', genre=16) }}" class="section-link">MORE</a>
-    </div>
-    <div class="movie-grid mb-4" id="grid-animation-in" style="transition: opacity 0.3s;">
-        {% for movie in animation[:8] %}
-        <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
-            <div class="movie-card">
-                <div class="poster-wrapper">
-                    {% if movie.poster_path %}
-                    <img src="{{ movie.poster_path|poster_url }}" alt="{{ movie.title }}" loading="lazy">
-                    {% else %}
-                    <div class="poster-placeholder"><i class="bi bi-film"></i></div>
-                    {% endif %}
-                </div>
-            </div>
-        </a>
-        {% endfor %}
-    </div>
-    {% endif %}
 </div>
 
+<script>
+    function refreshSection(sectionId, gridId) {
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        grid.style.opacity = '0.5';
+        fetch(`/api/refresh/${sectionId}`)
+            .then(res => res.text())
+            .then(html => {
+                grid.innerHTML = html;
+                grid.style.opacity = '1';
+            });
+    }
+
+    function updateMostWatched(timeframe, gridId) {
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        grid.style.opacity = '0.5';
+        fetch(`/api/refresh/most_watched?timeframe=${timeframe}`)
+            .then(res => res.text())
+            .then(html => {
+                grid.innerHTML = html;
+                grid.style.opacity = '1';
+            });
+    }
+
+    // Live update every 30 seconds
+    setInterval(() => {
+        refreshSection('trending', 'grid-trending');
+        refreshSection('popular', 'grid-popular-in');
+        {% if recommendations %}
+        refreshSection('recommendations', 'grid-recommendations');
+        {% endif %}
+        {% if animation %}
+        refreshSection('animation', 'grid-animation-in');
+        {% endif %}
+        {% if now_playing %}
+        refreshSection('now_playing', 'grid-now-playing');
+        {% endif %}
+    }, 30000);
+</script>
 
 {% else %}
 <!-- Logged-Out Homepage — Hero + Browse -->
@@ -246,7 +286,7 @@
         <h2 class="section-title"><span class="icon"><i class="bi bi-ticket-perforated"></i></span> Now in Theaters</h2>
         <a href="{{ url_for('main.films', tab='new') }}" class="section-link">MORE</a>
     </div>
-    <div class="movie-grid mb-4" id="grid-now-playing-out" style="transition: opacity 0.3s;">
+    <div class="movie-grid mb-4">
         {% for movie in now_playing[:12] %}
         <a href="{{ url_for('main.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
             <div class="movie-card">
@@ -267,10 +307,10 @@
     </div>
     {% endif %}
 
-    <!-- Animation (Logged-Out) -->
+    <!-- Animation -->
     {% if animation %}
     <div class="section-header mb-3">
-        <h2 class="section-title"><span class="icon"><i class="bi bi-film"></i></span> Animation <button onclick="refreshSection('animation', 'grid-animation-out')" class="btn btn-sm btn-link text-decoration-none" style="color: #678;"><i class="bi bi-arrow-clockwise"></i></button></h2>
+        <h2 class="section-title"><span class="icon"><i class="bi bi-stars"></i></span> Animation <button onclick="refreshSection('animation', 'grid-animation-out')" class="btn btn-sm btn-link text-decoration-none" style="color: #678;"><i class="bi bi-arrow-clockwise"></i></button></h2>
         <a href="{{ url_for('main.films', genre=16) }}" class="section-link">MORE</a>
     </div>
     <div class="movie-grid mb-4" id="grid-animation-out" style="transition: opacity 0.3s;">
@@ -354,59 +394,5 @@
     </div>
 </div>
 {% endif %}
-
-{% endif %}
-
-<script>
-    function refreshSection(sectionId, gridId) {
-        const grid = document.getElementById(gridId);
-        if (!grid) return;
-        grid.style.opacity = '0.5';
-        fetch(`/api/refresh/${sectionId}`)
-            .then(res => res.text())
-            .then(html => {
-                grid.innerHTML = html;
-                grid.style.opacity = '1';
-            });
-    }
-
-    function updateMostWatched(timeframe, gridId) {
-        const grid = document.getElementById(gridId);
-        if (!grid) return;
-        grid.style.opacity = '0.5';
-        fetch(`/api/refresh/most_watched?timeframe=${timeframe}`)
-            .then(res => res.text())
-            .then(html => {
-                grid.innerHTML = html;
-                grid.style.opacity = '1';
-            });
-    }
-
-    // Live update every 30 seconds
-    setInterval(() => {
-        {% if current_user.is_authenticated %}
-        refreshSection('trending', 'grid-trending');
-        refreshSection('popular', 'grid-popular-in');
-        {% if recommendations %}
-        refreshSection('recommendations', 'grid-recommendations');
-        {% endif %}
-        {% if now_playing %}
-        refreshSection('now_playing', 'grid-now-playing');
-        {% endif %}
-        {% if animation %}
-        refreshSection('animation', 'grid-animation-in');
-        {% endif %}
-        {% else %}
-        refreshSection('trending', 'grid-trending-out');
-        refreshSection('popular', 'grid-popular-out');
-        {% if now_playing %}
-        refreshSection('now_playing', 'grid-now-playing-out');
-        {% endif %}
-        {% if animation %}
-        refreshSection('animation', 'grid-animation-out');
-        {% endif %}
-        {% endif %}
-    }, 30000);
-</script>
 
 {% endblock %}
