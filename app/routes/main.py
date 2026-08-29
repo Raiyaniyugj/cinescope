@@ -199,6 +199,10 @@ def refresh_section(section):
         movies = tmdb_service.get_trending_movies()
         random.shuffle(movies)
         movies = movies[:8]
+    elif section == 'popular':
+        movies = tmdb_service.get_popular_movies()
+        random.shuffle(movies)
+        movies = movies[:8]
     elif section == 'now_playing':
         movies = tmdb_service.get_now_playing()
         random.shuffle(movies)
