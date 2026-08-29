@@ -40,9 +40,18 @@
                 <a href="#" class="text-decoration-none d-flex align-items-center gap-1 hover-white" data-bs-toggle="dropdown" style="color: #8AA8B9;">POPULAR <i class="bi bi-chevron-down" style="font-size: 0.6rem;"></i></a>
                 <ul class="dropdown-menu dropdown-menu-dark" style="background-color: #445566; border: 1px solid #2C3440; font-size: 0.8rem;">
                     <li><a class="dropdown-item" href="{{ url_for('main.films', sort_by='popularity') }}">All Time</a></li>
-                    <li><a class="dropdown-item" href="{{ url_for('main.films', timeframe='this-year') }}">This Year</a></li>
-                    <li><a class="dropdown-item" href="{{ url_for('main.films', timeframe='this-month') }}">This Month</a></li>
-                    <li><a class="dropdown-item" href="{{ url_for('main.films', timeframe='this-week') }}">This Week</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.films', sort_by='popularity', timeframe='this-year') }}">This Year</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.films', sort_by='popularity', timeframe='this-month') }}">This Month</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.films', sort_by='popularity', timeframe='this-week') }}">This Week</a></li>
+                </ul>
+            </div>
+            <div class="dropdown">
+                <a href="#" class="text-decoration-none d-flex align-items-center gap-1 hover-white" data-bs-toggle="dropdown" style="color: #8AA8B9;">MOST WATCHED <i class="bi bi-chevron-down" style="font-size: 0.6rem;"></i></a>
+                <ul class="dropdown-menu dropdown-menu-dark" style="background-color: #445566; border: 1px solid #2C3440; font-size: 0.8rem;">
+                    <li><a class="dropdown-item" href="{{ url_for('main.films', sort_by='most-watched') }}">All Time</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.films', sort_by='most-watched', timeframe='this-year') }}">This Year</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.films', sort_by='most-watched', timeframe='this-month') }}">This Month</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.films', sort_by='most-watched', timeframe='this-week') }}">This Week</a></li>
                 </ul>
             </div>
             <div class="dropdown">

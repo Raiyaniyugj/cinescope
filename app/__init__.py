@@ -20,13 +20,6 @@ def create_app(config_class=Config):
     db.init_app(app)
     login_manager.init_app(app)
 
-    # Initialize Firebase Admin
-    import firebase_admin
-    from firebase_admin import credentials
-    if not firebase_admin._apps:
-        # We can initialize with just the projectId to verify ID tokens without a full service account key
-        firebase_admin.initialize_app(options={'projectId': 'cinescope1'})
-
     # Register Blueprints
     from app.routes.auth import auth_bp
     from app.routes.main import main_bp
@@ -68,6 +61,20 @@ def create_app(config_class=Config):
     # Auto create database tables
     with app.app_context():
         db.create_all()
+
+    # Inject Firebase web config into all templates
+    @app.context_processor
+    def inject_firebase_config():
+        return dict(
+            firebase_config={
+                'apiKey': os.environ.get('FIREBASE_API_KEY'),
+                'authDomain': os.environ.get('FIREBASE_AUTH_DOMAIN'),
+                'projectId': os.environ.get('FIREBASE_PROJECT_ID'),
+                'storageBucket': os.environ.get('FIREBASE_STORAGE_BUCKET'),
+                'messagingSenderId': os.environ.get('FIREBASE_MESSAGING_SENDER_ID'),
+                'appId': os.environ.get('FIREBASE_APP_ID')
+            }
+        )
 
     # Initialize TMDB Service
     from app.services.tmdb import tmdb_service

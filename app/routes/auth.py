@@ -7,6 +7,8 @@ from app.services.tmdb import tmdb_service
 from app.services.analytics import AnalyticsService
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
+import random
+import string
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -278,61 +280,87 @@ def remove_favorite():
             return jsonify({'success': True})
     return jsonify({'success': False})
 
-@auth_bp.route('/firebase-login', methods=['POST'])
+@auth_bp.route('/api/auth/firebase-login', methods=['POST'])
 def firebase_login():
-    import firebase_admin
-    from firebase_admin import auth
+    """Verify Firebase ID token and login/register the user."""
+    import requests as http_requests
+    import os
     
-    id_token = request.json.get('idToken')
+    data = request.json
+    id_token = data.get('idToken')
+    
     if not id_token:
-        return jsonify({'success': False, 'error': 'No token provided'}), 400
+        return jsonify({'success': False, 'error': 'No ID token provided'}), 400
+
+    firebase_api_key = os.environ.get('FIREBASE_API_KEY', '')
+    if not firebase_api_key:
+        return jsonify({'success': False, 'error': 'Firebase not configured on server'}), 500
         
     try:
-        # Verify the Firebase ID token
-        decoded_token = auth.verify_id_token(id_token)
-        google_id = decoded_token.get('uid')
-        email = decoded_token.get('email')
-        name_str = decoded_token.get('name', '')
+        # Verify token using Google's Identity Toolkit API
+        verify_url = f"https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={firebase_api_key}"
+        resp = http_requests.post(verify_url, json={"idToken": id_token}, timeout=10)
         
-        name = name_str.split()
-        given_name = name[0] if name else ''
-        family_name = name[1] if len(name) > 1 else ''
+        if resp.status_code != 200:
+            return jsonify({'success': False, 'error': 'Token verification failed'}), 401
+            
+        user_data = resp.json()
+        users_list = user_data.get('users', [])
         
-        # 1. Try to find user by google_id
-        user = User.query.filter_by(google_id=google_id).first()
+        if not users_list:
+            return jsonify({'success': False, 'error': 'No user found for token'}), 401
+            
+        firebase_user = users_list[0]
+        email = firebase_user.get('email')
+        name = firebase_user.get('displayName', '')
+        photo_url = firebase_user.get('photoUrl')
         
-        # 2. Try to find user by email
+        if not email:
+            return jsonify({'success': False, 'error': 'No email found in token'}), 400
+            
+        # Check if user exists
+        user = User.query.filter_by(email=email).first()
+        
         if not user:
-            user = User.query.filter_by(email=email).first()
-            if user:
-                # Link existing account to Google
-                user.google_id = google_id
-                db.session.commit()
-                
-        # 3. Create new user
-        if not user:
-            username = email.split('@')[0]
-            # Ensure unique username
-            base_username = username
+            # Create a new user
+            # Generate a username based on email
+            base_username = email.split('@')[0]
+            username = base_username
             counter = 1
             while User.query.filter_by(username=username).first():
                 username = f"{base_username}{counter}"
                 counter += 1
                 
-            user = User(
-                username=username,
-                email=email,
-                google_id=google_id,
-                given_name=given_name,
-                family_name=family_name
-            )
-            # password_hash is nullable now, so we can leave it empty
+            user = User(username=username, email=email)
+            
+            if name:
+                parts = name.split(' ', 1)
+                user.given_name = parts[0]
+                if len(parts) > 1:
+                    user.family_name = parts[1]
+            
+            # Set Google profile photo as avatar
+            if photo_url:
+                user.avatar_url = photo_url
+                    
+            # Generate a random password since they authenticate via Google
+            random_pwd = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+            user.set_password(random_pwd)
+            
             db.session.add(user)
             db.session.commit()
+            flash(f'Account created successfully! Welcome to CineScope, {username}.', 'success')
+        else:
+            # Update avatar from Google if user doesn't have one
+            if photo_url and not user.avatar_url:
+                user.avatar_url = photo_url
+                db.session.commit()
+            flash(f'Welcome back, {user.username}!', 'success')
             
         login_user(user, remember=True)
         return jsonify({'success': True, 'redirect': url_for('main.index')})
         
     except Exception as e:
-        print(f"Firebase login error: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 401
+        print(f"Firebase verification error: {e}")
+        return jsonify({'success': False, 'error': 'Invalid or expired token'}), 401
+

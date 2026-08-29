@@ -71,9 +71,10 @@
                 </ul>
 
                 <div class="d-flex align-items-center gap-2">
-                    <form class="nav-search-form" action="{{ url_for('main.search') }}" method="GET">
+                    <form class="nav-search-form position-relative" action="{{ url_for('main.search') }}" method="GET" autocomplete="off">
                         <i class="bi bi-search search-icon"></i>
-                        <input type="text" class="form-control" name="q" placeholder="Search..." aria-label="Search">
+                        <input type="text" id="navSearchInput" class="form-control" name="q" placeholder="Search..." aria-label="Search">
+                        <div id="navSearchResults" class="dropdown-menu dropdown-menu-dark" style="position: absolute; top: 100%; right: 0; min-width: 300px; margin-top: 0.5rem; display: none; max-height: 400px; overflow-y: auto; background-color: #2C3440; border: 1px solid #445566; z-index: 1050; padding: 0;"></div>
                     </form>
 
                     {% if current_user.is_authenticated %}
@@ -293,6 +294,8 @@
         });
     }
 
+
+
     function selectLogMovie(id, title, year, poster) {
         document.getElementById('logSearchSection').style.display = 'none';
         document.getElementById('logFormSection').style.display = 'block';
@@ -317,52 +320,84 @@
     }
     </script>
     {% endif %}
-    <!-- Firebase Javascript SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
-        // MOCK CONFIG: User needs to replace this with their actual config from the Firebase Console
-        const firebaseConfig = {
-            apiKey: "{{ config.FIREBASE_API_KEY }}",
-            authDomain: "{{ config.FIREBASE_AUTH_DOMAIN }}",
-            projectId: "{{ config.FIREBASE_PROJECT_ID }}",
-            storageBucket: "{{ config.FIREBASE_STORAGE_BUCKET }}",
-            messagingSenderId: "{{ config.FIREBASE_MESSAGING_SENDER_ID }}",
-            appId: "{{ config.FIREBASE_APP_ID }}"
-        };
+    <script>
+    // Main Navbar Live Search (Available for all users)
+    document.addEventListener('DOMContentLoaded', function() {
+        const navSearchInput = document.getElementById('navSearchInput');
+        const navSearchResults = document.getElementById('navSearchResults');
+        let navSearchTimeout = null;
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        window.signInWithGoogle = async function() {
-            try {
-                const result = await signInWithPopup(auth, provider);
-                const idToken = await result.user.getIdToken();
+        if (navSearchInput && navSearchResults) {
+            navSearchInput.addEventListener('input', function(e) {
+                clearTimeout(navSearchTimeout);
+                const query = e.target.value;
                 
-                // Send token to backend
-                const response = await fetch('/auth/firebase-login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ idToken: idToken })
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    window.location.href = data.redirect;
-                } else {
-                    alert('Login failed: ' + data.error);
+                if (query.length < 2) { 
+                    navSearchResults.style.display = 'none';
+                    navSearchResults.innerHTML = ''; 
+                    return; 
                 }
-            } catch (error) {
-                console.error("Firebase Auth Error:", error);
-                if (error.code !== 'auth/popup-closed-by-user') {
-                    alert('Error signing in with Google: ' + error.message);
+
+                navSearchTimeout = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                        if (!res.ok) return;
+                        const data = await res.json();
+                        
+                        navSearchResults.innerHTML = '';
+                        if (data.results && data.results.length > 0) {
+                            data.results.slice(0, 6).forEach(movie => {
+                                const year = movie.release_date ? movie.release_date.substring(0, 4) : '';
+                                const title = movie.title;
+                                const poster = movie.poster_path ? `https://image.tmdb.org/t/p/w92${movie.poster_path}` : '';
+                                
+                                const link = document.createElement('a');
+                                link.href = `/movie/${movie.id}`;
+                                link.className = 'dropdown-item d-flex align-items-center gap-3 py-2';
+                                link.style.borderBottom = '1px solid #14181c';
+                                link.innerHTML = `
+                                    <div style="width: 35px; height: 50px; background: #14181c; overflow: hidden; border-radius: 2px;">
+                                        ${poster ? `<img src="${poster}" style="width: 100%; height: 100%; object-fit: cover;">` : ''}
+                                    </div>
+                                    <div class="text-truncate">
+                                        <div class="fw-bold" style="font-size: 0.9rem; color: #fff;">${title}</div>
+                                        <div style="font-size: 0.8rem; color: #8AA8B9;">${year}</div>
+                                    </div>
+                                `;
+                                
+                                link.addEventListener('mouseenter', function() {
+                                    this.style.backgroundColor = '#445566';
+                                });
+                                link.addEventListener('mouseleave', function() {
+                                    this.style.backgroundColor = 'transparent';
+                                });
+                                
+                                navSearchResults.appendChild(link);
+                            });
+                            navSearchResults.style.display = 'block';
+                        } else {
+                            navSearchResults.style.display = 'none';
+                        }
+                    } catch (err) { console.error(err); }
+                }, 300);
+            });
+
+            // Hide results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!navSearchInput.contains(e.target) && !navSearchResults.contains(e.target)) {
+                    navSearchResults.style.display = 'none';
                 }
-            }
+            });
+            
+            // Show results when focusing input if there's already a query
+            navSearchInput.addEventListener('focus', function(e) {
+                if (e.target.value.length >= 2 && navSearchResults.innerHTML !== '') {
+                    navSearchResults.style.display = 'block';
+                }
+            });
         }
+    });
     </script>
 </body>
 </html>

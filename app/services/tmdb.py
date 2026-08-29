@@ -786,7 +786,8 @@ class TMDBService:
             'release-newest': 'primary_release_date.desc',
             'rating-highest': 'vote_average.desc',
             'rating-lowest': 'vote_average.asc',
-            'popularity': 'popularity.desc'
+            'popularity': 'popularity.desc',
+            'most-watched': 'vote_count.desc'
         }
         tmdb_sort = sort_map.get(sort_by, 'popularity.desc')
 
@@ -813,7 +814,8 @@ class TMDBService:
             'release-newest': 'primary_release_date.desc',
             'rating-highest': 'vote_average.desc',
             'rating-lowest': 'vote_average.asc',
-            'popularity': 'popularity.desc'
+            'popularity': 'popularity.desc',
+            'most-watched': 'vote_count.desc'
         }
         tmdb_sort = sort_map.get(sort_by, 'popularity.desc')
 
@@ -861,7 +863,8 @@ class TMDBService:
             'release-newest': 'primary_release_date.desc',
             'rating-highest': 'vote_average.desc',
             'rating-lowest': 'vote_average.asc',
-            'popularity': 'popularity.desc'
+            'popularity': 'popularity.desc',
+            'most-watched': 'vote_count.desc'
         }
         tmdb_sort = sort_map.get(sort_by, 'popularity.desc')
 
@@ -909,7 +912,8 @@ class TMDBService:
             'release-newest': 'primary_release_date.desc',
             'rating-highest': 'vote_average.desc',
             'rating-lowest': 'vote_average.asc',
-            'popularity': 'popularity.desc'
+            'popularity': 'popularity.desc',
+            'most-watched': 'vote_count.desc'
         }
         tmdb_sort = sort_map.get(sort_by, 'popularity.desc')
 

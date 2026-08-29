@@ -51,6 +51,7 @@ def index():
     popular = tmdb_service.get_popular_movies()
     now_playing = tmdb_service.get_now_playing()
     genres = tmdb_service.get_genres_list()
+    most_watched, _ = tmdb_service.get_all_movies(sort_by='most-watched')
 
     # Get recommendations if authenticated
     recommendations = []
@@ -96,7 +97,8 @@ def index():
         recommendations=recommendations,
         featured=featured,
         demo_mode=demo_mode,
-        friend_activity=friend_activity
+        friend_activity=friend_activity,
+        most_watched=most_watched
     )
 
 @main_bp.route('/films/')
@@ -190,6 +192,33 @@ def api_search():
     # Filter to only movies for the log feature
     movies = [r for r in results if r.get('media_type') == 'movie' or 'title' in r]
     return jsonify({'results': movies})
+
+@main_bp.route('/api/refresh/<string:section>')
+def refresh_section(section):
+    if section == 'trending':
+        movies = tmdb_service.get_trending_movies()
+        random.shuffle(movies)
+        movies = movies[:8]
+    elif section == 'now_playing':
+        movies = tmdb_service.get_now_playing()
+        random.shuffle(movies)
+        movies = movies[:8]
+    elif section == 'recommendations':
+        if current_user.is_authenticated:
+            movies = RecommendationEngine.get_recommendations(current_user.id, num_recommendations=20)
+            random.shuffle(movies)
+            movies = movies[:8]
+        else:
+            movies = []
+    elif section == 'most_watched':
+        timeframe = request.args.get('timeframe', 'all-time')
+        tf = timeframe if timeframe != 'all-time' else None
+        movies, _ = tmdb_service.get_all_movies(sort_by='most-watched', timeframe=tf)
+        movies = movies[:12] # Up to 12 for the layout
+    else:
+        movies = []
+        
+    return render_template('components/movie_grid_partial.html', movies=movies)
 
 
 @main_bp.route('/tv/<int:tv_id>')
