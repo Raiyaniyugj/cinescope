@@ -451,7 +451,7 @@ class TMDBService:
             url = f"{self.base_url}/trending/movie/week"
             data = self._get_cached_or_fetch(url, params={"page": page})
             if data and 'results' in data:
-                return data['results']
+                return [m for m in data['results'] if m.get('poster_path')]
 
         # 2. Fallback to Mock Data
         return [self._minify_movie(movie) for movie in MOCK_MOVIES.values()]
@@ -462,7 +462,7 @@ class TMDBService:
             url = f"{self.base_url}/trending/tv/week"
             data = self._get_cached_or_fetch(url, params={"page": page})
             if data and 'results' in data:
-                return data['results']
+                return [m for m in data['results'] if m.get('poster_path')]
         return []
 
     def get_popular_movies(self, page=1):
@@ -471,7 +471,7 @@ class TMDBService:
             url = f"{self.base_url}/movie/popular"
             data = self._get_cached_or_fetch(url, params={"page": page})
             if data and 'results' in data:
-                return data['results']
+                return [m for m in data['results'] if m.get('poster_path')]
 
         # Sort mock movies by rating for popularity
         sorted_mocks = sorted(MOCK_MOVIES.values(), key=lambda x: x['vote_average'], reverse=True)
@@ -538,6 +538,15 @@ class TMDBService:
                 # Map runtime to episode run time if available
                 if 'episode_run_time' in data and data['episode_run_time']:
                     data['runtime'] = data['episode_run_time'][0]
+
+                # Extract similar shows
+                similar_data = data.pop('similar', None)
+                if similar_data:
+                    # Filter out items without posters
+                    similar_results = [m for m in similar_data.get('results', []) if m.get('poster_path')]
+                    data['_similar_movies'] = similar_results[:8]
+                elif '_similar_movies' not in data:
+                    data['_similar_movies'] = []
 
                 # Extract reviews
                 reviews_data = data.pop('reviews', None)
@@ -650,7 +659,9 @@ class TMDBService:
                 # Extract similar movies
                 similar_data = data.pop('similar', None)
                 if similar_data:
-                    data['_similar_movies'] = similar_data.get('results', [])[:8]
+                    # Filter out items without posters
+                    similar_results = [m for m in similar_data.get('results', []) if m.get('poster_path')]
+                    data['_similar_movies'] = similar_results[:8]
                 elif '_similar_movies' not in data:
                     data['_similar_movies'] = []
 
