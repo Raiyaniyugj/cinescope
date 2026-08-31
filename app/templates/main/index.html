@@ -121,6 +121,28 @@
     </div>
     {% endif %}
 
+    <!-- Web Series -->
+    {% if trending_tv %}
+    <div class="section-header mb-3">
+        <h2 class="section-title">Web Series Session <button onclick="refreshSection('trending_tv', 'grid-tv-in')" class="btn btn-sm btn-link text-decoration-none" style="color: #678;"><i class="bi bi-arrow-clockwise"></i></button></h2>
+    </div>
+    <div class="movie-grid large-posters mb-4" id="grid-tv-in" style="transition: opacity 0.3s;">
+        {% for show in trending_tv[:8] %}
+        <a href="{{ url_for('main.tv_detail', tv_id=show.id) }}" class="text-decoration-none">
+            <div class="movie-card">
+                <div class="poster-wrapper">
+                    {% if show.poster_path %}
+                    <img src="{{ show.poster_path|poster_url }}" alt="{{ show.name or show.title }}" loading="lazy">
+                    {% else %}
+                    <div class="poster-placeholder"><i class="bi bi-tv"></i></div>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- Recommendations -->
     {% if recommendations %}
     <div class="section-header mb-3">
@@ -231,6 +253,9 @@
         {% if animation %}
         refreshSection('animation', 'grid-animation-in');
         {% endif %}
+        {% if trending_tv %}
+        refreshSection('trending_tv', 'grid-tv-in');
+        {% endif %}
         {% if now_playing %}
         refreshSection('now_playing', 'grid-now-playing');
         {% endif %}
@@ -327,6 +352,32 @@
                 <div class="card-body">
                     <div class="card-title">{{ movie.title }}</div>
                     <div class="card-year">{{ movie.release_date[:4] if movie.release_date else '' }}</div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Web Series -->
+    {% if trending_tv %}
+    <div class="section-header mb-3">
+        <h2 class="section-title"><span class="icon"><i class="bi bi-tv"></i></span> Web Series Session <button onclick="refreshSection('trending_tv', 'grid-tv-out')" class="btn btn-sm btn-link text-decoration-none" style="color: #678;"><i class="bi bi-arrow-clockwise"></i></button></h2>
+    </div>
+    <div class="movie-grid mb-4" id="grid-tv-out" style="transition: opacity 0.3s;">
+        {% for show in trending_tv[:12] %}
+        <a href="{{ url_for('main.tv_detail', tv_id=show.id) }}" class="text-decoration-none">
+            <div class="movie-card">
+                <div class="poster-wrapper">
+                    {% if show.poster_path %}
+                    <img src="{{ show.poster_path|poster_url }}" alt="{{ show.name or show.title }}" loading="lazy">
+                    {% else %}
+                    <div class="poster-placeholder"><i class="bi bi-tv"></i></div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="card-title">{{ show.name or show.title }}</div>
+                    <div class="card-year">{{ show.first_air_date[:4] if show.first_air_date else (show.release_date[:4] if show.release_date else '') }}</div>
                 </div>
             </div>
         </a>

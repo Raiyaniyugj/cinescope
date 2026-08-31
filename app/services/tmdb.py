@@ -456,6 +456,15 @@ class TMDBService:
         # 2. Fallback to Mock Data
         return [self._minify_movie(movie) for movie in MOCK_MOVIES.values()]
 
+    def get_trending_tv(self, page=1):
+        """Browse trending TV shows of the week."""
+        if not self.is_demo_mode:
+            url = f"{self.base_url}/trending/tv/week"
+            data = self._get_cached_or_fetch(url, params={"page": page})
+            if data and 'results' in data:
+                return data['results']
+        return []
+
     def get_popular_movies(self, page=1):
         """Browse popular movies."""
         if not self.is_demo_mode:

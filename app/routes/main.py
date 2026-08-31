@@ -53,6 +53,7 @@ def index():
     animation = tmdb_service.get_movies_by_genre(16)
     genres = tmdb_service.get_genres_list()
     most_watched, _ = tmdb_service.get_all_movies(sort_by='most-watched')
+    trending_tv = tmdb_service.get_trending_tv()
 
     # Get recommendations if authenticated
     recommendations = []
@@ -100,7 +101,8 @@ def index():
         demo_mode=demo_mode,
         friend_activity=friend_activity,
         most_watched=most_watched,
-        animation=animation
+        animation=animation,
+        trending_tv=trending_tv
     )
 
 @main_bp.route('/films/')
@@ -212,6 +214,10 @@ def refresh_section(section):
         movies = movies[:8]
     elif section == 'animation':
         movies = tmdb_service.get_movies_by_genre(16, page=random_page)
+        random.shuffle(movies)
+        movies = movies[:8]
+    elif section == 'trending_tv':
+        movies = tmdb_service.get_trending_tv(page=random_page)
         random.shuffle(movies)
         movies = movies[:8]
     elif section == 'recommendations':
