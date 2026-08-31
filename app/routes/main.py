@@ -248,7 +248,46 @@ def tv_detail(tv_id):
             return redirect(request.referrer or url_for('main.index'))
         return render_template('errors/404.html'), 404
         
-    return render_template('main/tv_detail.html', tv_show=tv_show)
+    similar = tv_show.pop('_similar_movies', [])
+    watch_providers = tv_show.pop('_watch_providers', None)
+    reviews = tv_show.pop('_reviews', [])
+
+    # Check watchlist status
+    in_watchlist = False
+    is_watched = False
+    user_rating = None
+    user_review = None
+    is_favorite = False
+
+    if current_user.is_authenticated:
+        from app.models import Watchlist, Watched
+        watchlist_item = Watchlist.query.filter_by(user_id=current_user.id, tmdb_id=tv_id).first()
+        if watchlist_item:
+            in_watchlist = True
+            
+        watched_item = Watched.query.filter_by(user_id=current_user.id, tmdb_id=tv_id).first()
+        if watched_item:
+            is_watched = True
+            user_rating = watched_item.rating
+            user_review = watched_item.review
+            is_favorite = watched_item.is_favorite
+            
+        from app.models import CustomList
+        user_lists = CustomList.query.filter_by(user_id=current_user.id).all()
+
+    return render_template(
+        'main/tv_detail.html', 
+        tv_show=tv_show,
+        similar=similar,
+        watch_providers=watch_providers,
+        in_watchlist=in_watchlist,
+        is_watched=is_watched,
+        user_rating=user_rating,
+        user_review=user_review,
+        is_favorite=is_favorite,
+        user_lists=user_lists if current_user.is_authenticated else [],
+        reviews=reviews
+    )
 
 
 @main_bp.route('/movie/<int:movie_id>')
@@ -264,6 +303,7 @@ def movie_detail(movie_id):
     # Everything is now embedded from the single append_to_response call
     similar = movie.pop('_similar_movies', [])
     watch_providers = movie.pop('_watch_providers', None)
+    reviews = movie.pop('_reviews', [])
 
     # Check watchlist status
     in_watchlist = False
@@ -298,7 +338,8 @@ def movie_detail(movie_id):
         user_rating=user_rating,
         user_review=user_review,
         is_favorite=is_favorite,
-        user_lists=user_lists if current_user.is_authenticated else []
+        user_lists=user_lists if current_user.is_authenticated else [],
+        reviews=reviews
     )
 
 @main_bp.route('/movie/<int:movie_id>/similar')

@@ -504,7 +504,7 @@ class TMDBService:
             return None
 
         if not self.is_demo_mode:
-            url = f"{self.base_url}/tv/{tv_id}?append_to_response=credits,videos,watch/providers,similar"
+            url = f"{self.base_url}/tv/{tv_id}?append_to_response=credits,videos,watch/providers,similar,reviews"
             data = self._get_cached_or_fetch(url)
             if data:
                 # Map TV fields to common fields for easier template rendering
@@ -538,6 +538,13 @@ class TMDBService:
                 # Map runtime to episode run time if available
                 if 'episode_run_time' in data and data['episode_run_time']:
                     data['runtime'] = data['episode_run_time'][0]
+
+                # Extract reviews
+                reviews_data = data.pop('reviews', None)
+                if reviews_data:
+                    data['_reviews'] = reviews_data.get('results', [])[:5]
+                elif '_reviews' not in data:
+                    data['_reviews'] = []
 
                 return data
         return None
@@ -609,7 +616,7 @@ class TMDBService:
         if not self.is_demo_mode:
             # Single API call — append_to_response baked into URL
             # Cache key stays clean as /movie/{id} for compatibility
-            url = f"{self.base_url}/movie/{movie_id}?append_to_response=credits,videos,watch/providers,similar"
+            url = f"{self.base_url}/movie/{movie_id}?append_to_response=credits,videos,watch/providers,similar,reviews"
             data = self._get_cached_or_fetch(url)
             if data:
                 # Extract credits (may not exist in old cache)
@@ -646,6 +653,13 @@ class TMDBService:
                     data['_similar_movies'] = similar_data.get('results', [])[:8]
                 elif '_similar_movies' not in data:
                     data['_similar_movies'] = []
+
+                # Extract reviews
+                reviews_data = data.pop('reviews', None)
+                if reviews_data:
+                    data['_reviews'] = reviews_data.get('results', [])[:5]  # Limit to top 5 reviews
+                elif '_reviews' not in data:
+                    data['_reviews'] = []
 
                 return data
 

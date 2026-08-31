@@ -106,6 +106,9 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="genres-tab" data-bs-toggle="tab" data-bs-target="#genres-pane" type="button" role="tab">Genres</button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-pane" type="button" role="tab">Reviews</button>
+                </li>
             </ul>
             
             <div class="tab-content" id="movieTabsContent">
@@ -165,6 +168,36 @@
                             {% endfor %}
                         {% else %}
                             <p class="text-muted" style="font-size: 0.8rem;">No genres available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- REVIEWS TAB -->
+                <div class="tab-pane fade" id="reviews-pane" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
+                    <div class="mt-3">
+                        {% if reviews %}
+                            {% for review in reviews %}
+                            <div class="review-card mb-3 p-3" style="background: var(--bg-surface); border-radius: var(--radius); border: 1px solid var(--border);">
+                                <div class="d-flex align-items-center mb-2">
+                                    {% if review.author_details.avatar_path %}
+                                    <img src="https://image.tmdb.org/t/p/w45{{ review.author_details.avatar_path }}" alt="{{ review.author }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: var(--bg-card); color: var(--text-muted);"><i class="bi bi-person-fill"></i></div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-0" style="font-size: 0.85rem; color: var(--text-primary);">{{ review.author }}</h6>
+                                        {% if review.author_details.rating %}
+                                        <span class="badge bg-secondary" style="font-size: 0.65rem;"><i class="bi bi-star-fill text-warning"></i> {{ review.author_details.rating }} / 10</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted" style="font-size: 0.8rem; line-height: 1.5;">
+                                    {{ review.content[:300] }}{% if review.content|length > 300 %}... <a href="{{ review.url }}" target="_blank" style="color: var(--accent); text-decoration: none;">Read more</a>{% endif %}
+                                </p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted" style="font-size: 0.8rem;">No user reviews available.</p>
                         {% endif %}
                     </div>
                 </div>

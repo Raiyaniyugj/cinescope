@@ -59,7 +59,11 @@ def add_watchlist(movie_id):
 
     movie = tmdb_service.get_movie_details(movie_id)
     if not movie:
-        flash('Could not fetch movie details.', 'danger')
+        movie = tmdb_service.get_movie_details(movie_id)
+    if not movie:
+        movie = tmdb_service.get_tv_details(movie_id)
+    if not movie:
+        flash('Could not fetch details.', 'danger')
         return redirect(request.referrer or url_for('main.index'))
 
     new_item = Watchlist(
@@ -109,7 +113,9 @@ def log_watched(movie_id):
     if not item:
         movie = tmdb_service.get_movie_details(movie_id)
         if not movie:
-            flash('Movie not found.', 'danger')
+            movie = tmdb_service.get_tv_details(movie_id)
+        if not movie:
+            flash('Media not found.', 'danger')
             return redirect(request.referrer or url_for('main.index'))
         item = Watched(
             user_id=current_user.id,
@@ -172,7 +178,9 @@ def log_modal_submit():
     if not item:
         movie = tmdb_service.get_movie_details(movie_id)
         if not movie:
-            flash('Movie not found.', 'danger')
+            movie = tmdb_service.get_tv_details(movie_id)
+        if not movie:
+            flash('Media not found.', 'danger')
             return redirect(request.referrer or url_for('main.index'))
         item = Watched(
             user_id=current_user.id,

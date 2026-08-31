@@ -19,9 +19,56 @@
             <img src="{{ tv_show.poster_path|poster_url }}" alt="{{ tv_show.title }}" class="detail-poster mb-3 w-100">
             {% endif %}
 
-            <div class="mb-4">
-                <p class="text-muted" style="font-size: 0.8rem; text-align: center;">Logging and Watchlists for TV Shows are currently unsupported.</p>
+            <!-- Action Buttons Row — Letterboxd style -->
+            {% if current_user.is_authenticated %}
+            <div class="action-panel-row">
+                <!-- Watchlist -->
+                {% if in_watchlist %}
+                <form action="{{ url_for('watchlist.remove_watchlist', movie_id=tv_show.id) }}" method="POST" class="d-flex flex-grow-1">
+                    <button class="action-panel-btn active" title="Remove from Watchlist">
+                        <i class="bi bi-clock-fill" style="color: var(--accent);"></i>
+                        Watchlist
+                    </button>
+                </form>
+                {% else %}
+                <form action="{{ url_for('watchlist.add_watchlist', movie_id=tv_show.id) }}" method="POST" class="d-flex flex-grow-1">
+                    <button class="action-panel-btn" title="Add to Watchlist">
+                        <i class="bi bi-clock"></i>
+                        Watchlist
+                    </button>
+                </form>
+                {% endif %}
+
+                <!-- Like (Favorite) -->
+                {% if is_favorite %}
+                <form action="{{ url_for('watchlist.remove_watched', movie_id=tv_show.id) }}" method="POST" class="d-flex flex-grow-1">
+                    <button class="action-panel-btn active" title="Unlike">
+                        <i class="bi bi-heart-fill" style="color: var(--orange);"></i>
+                        Like
+                    </button>
+                </form>
+                {% else %}
+                <!-- To like, we submit to log_watched with is_favorite=on -->
+                <form action="{{ url_for('watchlist.log_watched', movie_id=tv_show.id) }}" method="POST" class="d-flex flex-grow-1">
+                    <input type="hidden" name="is_favorite" value="on">
+                    <button class="action-panel-btn" title="Like">
+                        <i class="bi bi-heart"></i>
+                        Like
+                    </button>
+                </form>
+                {% endif %}
+                
+                <!-- Log Modal Trigger -->
+                <a href="#" class="action-panel-btn {% if is_watched %}active{% endif %}" data-bs-toggle="modal" data-bs-target="#logModal" style="flex-grow: 1;">
+                    <i class="bi bi-eye{% if is_watched %}-fill{% endif %}"></i>
+                    Log
+                </a>
             </div>
+            {% else %}
+            <div class="mb-4">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-cinescope w-100"><i class="bi bi-box-arrow-in-right"></i> Sign in to log</a>
+            </div>
+            {% endif %}
         </div>
 
         <!-- Middle Column: Main Content & Tabs -->
@@ -58,6 +105,9 @@
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="genres-tab" data-bs-toggle="tab" data-bs-target="#genres-pane" type="button" role="tab">Genres</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-pane" type="button" role="tab">Reviews</button>
                 </li>
             </ul>
             
@@ -118,6 +168,36 @@
                             {% endfor %}
                         {% else %}
                             <p class="text-muted" style="font-size: 0.8rem;">No genres available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- REVIEWS TAB -->
+                <div class="tab-pane fade" id="reviews-pane" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
+                    <div class="mt-3">
+                        {% if reviews %}
+                            {% for review in reviews %}
+                            <div class="review-card mb-3 p-3" style="background: var(--bg-surface); border-radius: var(--radius); border: 1px solid var(--border);">
+                                <div class="d-flex align-items-center mb-2">
+                                    {% if review.author_details.avatar_path %}
+                                    <img src="https://image.tmdb.org/t/p/w45{{ review.author_details.avatar_path }}" alt="{{ review.author }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: var(--bg-card); color: var(--text-muted);"><i class="bi bi-person-fill"></i></div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-0" style="font-size: 0.85rem; color: var(--text-primary);">{{ review.author }}</h6>
+                                        {% if review.author_details.rating %}
+                                        <span class="badge bg-secondary" style="font-size: 0.65rem;"><i class="bi bi-star-fill text-warning"></i> {{ review.author_details.rating }} / 10</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted" style="font-size: 0.8rem; line-height: 1.5;">
+                                    {{ review.content[:300] }}{% if review.content|length > 300 %}... <a href="{{ review.url }}" target="_blank" style="color: var(--accent); text-decoration: none;">Read more</a>{% endif %}
+                                </p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted" style="font-size: 0.8rem;">No user reviews available.</p>
                         {% endif %}
                     </div>
                 </div>
@@ -247,6 +327,71 @@
     </div>
 </div>
 
-
+<!-- Log Modal -->
+{% if current_user.is_authenticated %}
+<div class="modal fade" id="logModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border);">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border);">
+                <h5 class="modal-title" style="font-size: 1rem;">I watched...</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-start gap-3 mb-4">
+                    <img src="{{ tv_show.poster_path|poster_url }}" alt="{{ tv_show.title }}" style="width: 70px; border-radius: var(--radius);">
+                    <div>
+                        <h4 style="margin-bottom: 0.2rem;">{{ tv_show.title }}</h4>
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">{{ tv_show.release_date[:4] if tv_show.release_date else '' }}</span>
+                    </div>
+                </div>
+                
+                <form action="{{ url_for('watchlist.log_watched', movie_id=tv_show.id) }}" method="POST">
+                    <div class="mb-4">
+                        <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; display: block;">Rating</label>
+                        <div class="rating-widget">
+                            {% set u_rating = (user_rating or 0) | float %}
+                            <input type="radio" id="star5" name="rating" value="5" {% if u_rating >= 4.75 %}checked{% endif %} />
+                            <label for="star5" title="5 stars"></label>
+                            
+                            <input type="radio" id="star4" name="rating" value="4" {% if u_rating >= 3.75 and u_rating < 4.75 %}checked{% endif %} />
+                            <label for="star4" title="4 stars"></label>
+                            
+                            <input type="radio" id="star3" name="rating" value="3" {% if u_rating >= 2.75 and u_rating < 3.75 %}checked{% endif %} />
+                            <label for="star3" title="3 stars"></label>
+                            
+                            <input type="radio" id="star2" name="rating" value="2" {% if u_rating >= 1.75 and u_rating < 2.75 %}checked{% endif %} />
+                            <label for="star2" title="2 stars"></label>
+                            
+                            <input type="radio" id="star1" name="rating" value="1" {% if u_rating >= 0.75 and u_rating < 1.75 %}checked{% endif %} />
+                            <label for="star1" title="1 star"></label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" name="is_favorite" id="modalIsFav" {% if is_favorite %}checked{% endif %}>
+                        <label class="form-check-label" for="modalIsFav" style="color: var(--orange); font-size: 0.9rem;">
+                            <i class="bi bi-heart-fill me-1"></i> Like
+                        </label>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; display: block;">Review (Optional)</label>
+                        <textarea name="review" class="form-control" rows="4" placeholder="Add a review..." style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border); font-size: 0.85rem;">{{ user_review or '' }}</textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        {% if is_watched %}
+                        <button type="submit" formaction="{{ url_for('watchlist.remove_watched', movie_id=tv_show.id) }}" class="btn btn-ghost" style="color: var(--red);">Remove Log</button>
+                        {% else %}
+                        <div></div>
+                        {% endif %}
+                        <button type="submit" class="btn btn-cinescope px-4">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 {% endblock %}
